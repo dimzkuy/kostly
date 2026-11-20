@@ -1,0 +1,21 @@
+# Environment
+.env
+
+# Build output — covers both explicit -o names and default go build output
+/kostly-api
+/kostly-api.exe
+/api
+/api.exe
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test coverage
+coverage.out
