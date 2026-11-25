@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { Palette } from '@/constants/theme';
 
 interface ConfirmDialogProps {
@@ -76,7 +76,7 @@ export function ToastBanner({
   return (
     <View style={styles.toastWrap} pointerEvents="none">
       <View style={styles.toastPill}>
-        <MaterialIcons name={iconName} size={18} color={iconColor} />
+        <AppIcon name={iconName} size={18} color={iconColor} />
         <Text style={styles.toastText}>{message}</Text>
       </View>
     </View>

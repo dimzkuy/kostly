@@ -1,12 +1,13 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { StackHeader } from '@/components/ui/screen-header';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { ROUTES } from '@/constants/routes';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 import { formatIDR } from '@/data/mock-data';
@@ -34,44 +35,53 @@ export default function OwnerPropertiesScreen() {
             <Pressable
               onPress={() => router.push('/owner/properties/new')}
               style={({ pressed }) => [styles.addBtn, pressed && styles.pressed]}>
-              <MaterialIcons name="add" size={18} color="#FFFFFF" />
+              <AppIcon name="add" size={18} color="#FFFFFF" />
               <Text style={styles.addBtnText}>Tambah Properti</Text>
             </Pressable>
           </View>
 
           <View style={styles.list}>
             {owned.map((prop) => (
-              <Pressable
-                key={prop.id}
-                onPress={() =>
-                  router.push({ pathname: '/properties/[id]', params: { id: prop.id } })
-                }
-                style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-                <Image
-                  source={{ uri: prop.imageUrl }}
-                  style={styles.thumb}
-                  contentFit="cover"
-                />
-                <View style={styles.cardBody}>
-                  <View style={styles.badgeRow}>
-                    <StatusBadge domain="property" status={prop.status} />
-                    {prop.hasBookingHistory && (
-                      <View style={styles.historyTag}>
-                        <Text style={styles.historyTagText}>Ada Riwayat Sewa</Text>
-                      </View>
-                    )}
+              <View key={prop.id} style={styles.card}>
+                <Pressable
+                  onPress={() =>
+                    router.push({ pathname: '/properties/[id]', params: { id: prop.id } })
+                  }
+                  style={({ pressed }) => [styles.cardPressable, pressed && styles.pressed]}>
+                  <Image
+                    source={{ uri: prop.imageUrl }}
+                    style={styles.thumb}
+                    contentFit="cover"
+                  />
+                  <View style={styles.cardBody}>
+                    <View style={styles.badgeRow}>
+                      <StatusBadge domain="property" status={prop.status} />
+                      {prop.hasBookingHistory && (
+                        <View style={styles.historyTag}>
+                          <Text style={styles.historyTagText}>Ada Riwayat Sewa</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={styles.propName} numberOfLines={1}>
+                      {prop.name}
+                    </Text>
+                    <Text style={styles.propMeta} numberOfLines={1}>
+                      {prop.city} • {prop.rooms.length} tipe kamar
+                    </Text>
+                    <Text style={styles.propPrice}>
+                      Mulai {formatIDR(prop.startingPrice)} / bln
+                    </Text>
                   </View>
-                  <Text style={styles.propName} numberOfLines={1}>
-                    {prop.name}
-                  </Text>
-                  <Text style={styles.propMeta} numberOfLines={1}>
-                    {prop.city} • {prop.rooms.length} tipe kamar
-                  </Text>
-                  <Text style={styles.propPrice}>
-                    Mulai {formatIDR(prop.startingPrice)} / bln
-                  </Text>
-                </View>
-              </Pressable>
+                </Pressable>
+
+                {/* Edit button */}
+                <Pressable
+                  accessibilityLabel="Edit Properti"
+                  onPress={() => router.push(ROUTES.ownerPropertyEdit(prop.id))}
+                  style={({ pressed }) => [styles.editBtn, pressed && styles.pressed]}>
+                  <AppIcon name="create-outline" size={16} color={Palette.primary[600]} />
+                </Pressable>
+              </View>
             ))}
           </View>
         </ResponsiveContainer>
@@ -134,10 +144,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: Palette.neutral[200],
-    padding: 12,
     flexDirection: 'row',
-    gap: 12,
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  cardPressable: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
   },
   thumb: {
     width: 84,
@@ -148,6 +164,15 @@ const styles = StyleSheet.create({
   cardBody: {
     flex: 1,
     gap: 4,
+  },
+  editBtn: {
+    width: 44,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderLeftWidth: 1,
+    borderLeftColor: Palette.neutral[200],
+    backgroundColor: Palette.primary[50],
   },
   badgeRow: {
     flexDirection: 'row',

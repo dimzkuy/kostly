@@ -1,16 +1,19 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { usePathname, useRouter } from 'expo-router';
+import { usePathname, useRouter, type Href } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
+import type { AppIconName } from '@/components/ui/app-icon.types';
+import { ROUTES } from '@/constants/routes';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 import { useResponsive } from '@/hooks/use-responsive';
 
 interface NavEntry {
   label: string;
-  href: '/index' | '/explore' | '/bookings' | '/profile';
-  icon: keyof typeof MaterialIcons.glyphMap;
+  href: Href;
+  icon: AppIconName;
+  activeIcon: AppIconName;
 }
 
 export function AppSidebar() {
@@ -20,26 +23,43 @@ export function AppSidebar() {
   const { user, isAuthenticated } = useApp();
 
   const navItems: NavEntry[] = [
-    { label: user.role === 'OWNER' ? 'Dashboard' : 'Beranda', href: '/index', icon: 'home' },
+    {
+      label: user.role === 'OWNER' ? 'Dashboard' : 'Beranda',
+      href: ROUTES.home,
+      icon: 'home-outline',
+      activeIcon: 'home',
+    },
     {
       label: user.role === 'OWNER' ? 'Kelola Properti' : 'Jelajah Kost',
-      href: '/explore',
-      icon: 'explore',
+      href: ROUTES.explore,
+      icon: user.role === 'OWNER' ? 'business-outline' : 'compass-outline',
+      activeIcon: user.role === 'OWNER' ? 'business' : 'compass',
     },
-    { label: 'Booking', href: '/bookings', icon: 'calendar-today' },
-    { label: 'Profil Saya', href: '/profile', icon: 'person' },
+    {
+      label: 'Booking',
+      href: ROUTES.bookings,
+      icon: 'calendar-outline',
+      activeIcon: 'calendar',
+    },
+    {
+      label: 'Profil Saya',
+      href: ROUTES.profile,
+      icon: 'person-outline',
+      activeIcon: 'person',
+    },
   ];
 
-  const isActive = (href: string) => {
-    if (href === '/index') return pathname === '/' || pathname === '/index';
-    return pathname.startsWith(href);
+  const isActive = (href: Href) => {
+    const path = String(typeof href === 'string' ? href : href.pathname);
+    if (path === '/') return pathname === '/' || pathname === '/index';
+    return pathname.startsWith(path);
   };
 
   return (
     <View style={[styles.sidebar, isTablet ? styles.sidebarTablet : styles.sidebarDesktop]}>
       <View style={styles.brandHeader}>
         <View style={styles.logoBox}>
-          <MaterialIcons name="home-work" size={20} color="#FFFFFF" />
+          <AppIcon name="business" size={19} color="#FFFFFF" />
         </View>
         <View>
           <Text style={styles.brandName}>Kostly</Text>
@@ -53,15 +73,15 @@ export function AppSidebar() {
           const active = isActive(item.href);
           return (
             <Pressable
-              key={item.href}
+              key={item.label}
               onPress={() => router.push(item.href)}
               style={({ pressed }) => [
                 styles.navItem,
                 active && styles.navItemActive,
                 pressed && styles.pressed,
               ]}>
-              <MaterialIcons
-                name={item.icon}
+              <AppIcon
+                name={active ? item.activeIcon : item.icon}
                 size={20}
                 color={active ? Palette.primary[600] : Palette.neutral[600]}
               />
@@ -76,13 +96,13 @@ export function AppSidebar() {
         <Pressable
           onPress={() => router.push('/owner/properties/new')}
           style={({ pressed }) => [styles.actionItem, pressed && styles.pressed]}>
-          <MaterialIcons name="add-business" size={19} color={Palette.primary[600]} />
+          <AppIcon name="add-business" size={19} color={Palette.primary[600]} />
           <Text style={styles.actionText}>Tambah Properti Kost</Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push('/owner/properties/index')}
+          onPress={() => router.push(ROUTES.ownerProperties)}
           style={({ pressed }) => [styles.navItem, pressed && styles.pressed]}>
-          <MaterialIcons name="apartment" size={19} color={Palette.neutral[600]} />
+          <AppIcon name="business-outline" size={19} color={Palette.neutral[600]} />
           <Text style={styles.navText}>Daftar Properti Owner</Text>
         </Pressable>
       </View>

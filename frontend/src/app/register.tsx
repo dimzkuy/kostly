@@ -10,12 +10,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { ToastBanner } from '@/components/ui/confirm-dialog';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { StackHeader } from '@/components/ui/screen-header';
+import { ROUTES } from '@/constants/routes';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 import type { UserRole } from '@/types/kostly';
@@ -81,7 +82,7 @@ export default function RegisterScreen() {
       setSubmitting(false);
       setToastMsg('Akun berhasil didaftarkan! Mengarahkan ke Kostly...');
       setTimeout(() => {
-        router.replace('/index');
+        router.replace(ROUTES.home);
       }, 500);
     }, 600);
   };
@@ -114,7 +115,7 @@ export default function RegisterScreen() {
                 style={[styles.roleCard, role === 'TENANT' && styles.roleCardActive]}>
                 {role === 'TENANT' && (
                   <View style={styles.roleCheck}>
-                    <MaterialIcons name="check" size={13} color="#FFFFFF" />
+                    <AppIcon name="check" size={13} color="#FFFFFF" />
                   </View>
                 )}
                 <View
@@ -122,8 +123,8 @@ export default function RegisterScreen() {
                     styles.roleIconBox,
                     role === 'TENANT' && styles.roleIconBoxActive,
                   ]}>
-                  <MaterialIcons
-                    name="person-search"
+                  <AppIcon
+                    name="search"
                     size={20}
                     color={role === 'TENANT' ? Palette.primary[700] : Palette.neutral[600]}
                   />
@@ -137,7 +138,7 @@ export default function RegisterScreen() {
                 style={[styles.roleCard, role === 'OWNER' && styles.roleCardActive]}>
                 {role === 'OWNER' && (
                   <View style={styles.roleCheck}>
-                    <MaterialIcons name="check" size={13} color="#FFFFFF" />
+                    <AppIcon name="check" size={13} color="#FFFFFF" />
                   </View>
                 )}
                 <View
@@ -145,8 +146,8 @@ export default function RegisterScreen() {
                     styles.roleIconBox,
                     role === 'OWNER' && styles.roleIconBoxActive,
                   ]}>
-                  <MaterialIcons
-                    name="home-work"
+                  <AppIcon
+                    name="business"
                     size={20}
                     color={role === 'OWNER' ? Palette.primary[700] : Palette.neutral[600]}
                   />
@@ -165,7 +166,7 @@ export default function RegisterScreen() {
                   <Text style={styles.fieldHint}>Wajib</Text>
                 </View>
                 <View style={styles.inputBox}>
-                  <MaterialIcons name="person-outline" size={20} color={Palette.neutral[400]} />
+                  <AppIcon name="person-outline" size={20} color={Palette.neutral[400]} />
                   <TextInput
                     value={fullName}
                     onChangeText={setFullName}
@@ -183,7 +184,7 @@ export default function RegisterScreen() {
                   <Text style={styles.fieldHint}>Valid</Text>
                 </View>
                 <View style={styles.inputBox}>
-                  <MaterialIcons name="mail-outline" size={20} color={Palette.neutral[400]} />
+                  <AppIcon name="mail-outline" size={20} color={Palette.neutral[400]} />
                   <TextInput
                     value={email}
                     onChangeText={setEmail}
@@ -200,7 +201,7 @@ export default function RegisterScreen() {
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>KATA SANDI</Text>
                 <View style={styles.inputBox}>
-                  <MaterialIcons name="lock-outline" size={20} color={Palette.neutral[400]} />
+                  <AppIcon name="lock-outline" size={20} color={Palette.neutral[400]} />
                   <TextInput
                     value={password}
                     onChangeText={setPassword}
@@ -210,8 +211,8 @@ export default function RegisterScreen() {
                     style={styles.input}
                   />
                   <Pressable onPress={() => setShowPwd((v) => !v)} hitSlop={8}>
-                    <MaterialIcons
-                      name={showPwd ? 'visibility' : 'visibility-off'}
+                    <AppIcon
+                      name={showPwd ? 'eye' : 'eye-off'}
                       size={20}
                       color={Palette.neutral[400]}
                     />
@@ -251,7 +252,7 @@ export default function RegisterScreen() {
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>KONFIRMASI KATA SANDI</Text>
                 <View style={styles.inputBox}>
-                  <MaterialIcons name="lock-reset" size={20} color={Palette.neutral[400]} />
+                  <AppIcon name="lock-reset" size={20} color={Palette.neutral[400]} />
                   <TextInput
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
@@ -261,8 +262,8 @@ export default function RegisterScreen() {
                     style={styles.input}
                   />
                   <Pressable onPress={() => setShowConfirm((v) => !v)} hitSlop={8}>
-                    <MaterialIcons
-                      name={showConfirm ? 'visibility' : 'visibility-off'}
+                    <AppIcon
+                      name={showConfirm ? 'eye' : 'eye-off'}
                       size={20}
                       color={Palette.neutral[400]}
                     />
@@ -271,7 +272,7 @@ export default function RegisterScreen() {
 
                 {passwordsMatch && (
                   <View style={styles.matchRow}>
-                    <MaterialIcons
+                    <AppIcon
                       name="check-circle"
                       size={14}
                       color={Palette.semantic.success600}
@@ -281,8 +282,8 @@ export default function RegisterScreen() {
                 )}
                 {passwordsMismatch && (
                   <View style={styles.matchRow}>
-                    <MaterialIcons
-                      name="cancel"
+                    <AppIcon
+                      name="close-circle"
                       size={14}
                       color={Palette.semantic.danger600}
                     />
@@ -296,7 +297,7 @@ export default function RegisterScreen() {
                 onPress={() => setAcceptedTerms((v) => !v)}
                 style={styles.termsRow}>
                 <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
-                  {acceptedTerms && <MaterialIcons name="check" size={14} color="#FFFFFF" />}
+                  {acceptedTerms && <AppIcon name="check" size={14} color="#FFFFFF" />}
                 </View>
                 <Text style={styles.termsText}>
                   Saya menyetujui{' '}
@@ -307,7 +308,7 @@ export default function RegisterScreen() {
 
               {errorMsg && (
                 <View style={styles.errorBox}>
-                  <MaterialIcons name="error-outline" size={16} color={Palette.semantic.danger600} />
+                  <AppIcon name="error-outline" size={16} color={Palette.semantic.danger600} />
                   <Text style={styles.errorText}>{errorMsg}</Text>
                 </View>
               )}
@@ -321,7 +322,7 @@ export default function RegisterScreen() {
                 ) : (
                   <>
                     <Text style={styles.submitText}>Daftar Sekarang</Text>
-                    <MaterialIcons name="arrow-forward" size={18} color="#FFFFFF" />
+                    <AppIcon name="arrow-forward" size={18} color="#FFFFFF" />
                   </>
                 )}
               </Pressable>
@@ -337,7 +338,7 @@ export default function RegisterScreen() {
             {/* Security Guarantee Card */}
             <View style={styles.securityCard}>
               <View style={styles.securityIconBox}>
-                <MaterialIcons name="verified-user" size={20} color="#FFFFFF" />
+                <AppIcon name="verified-user" size={20} color="#FFFFFF" />
               </View>
               <View style={styles.securityTextWrap}>
                 <Text style={styles.securityTitle}>Privasi & Keamanan Terjamin</Text>

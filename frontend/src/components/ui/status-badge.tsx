@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { Palette, StatusPresentation } from '@/constants/theme';
 import type {
   BookingStatus,
@@ -50,7 +50,7 @@ export function GenderBadge({ genderType }: { genderType: KostGenderType }) {
 export function VerifiedBadge() {
   return (
     <View style={[styles.floatingPill, styles.verifiedBg]}>
-      <MaterialIcons name="verified" size={12} color="#FFFFFF" />
+      <AppIcon name="verified" size={13} color="#FFFFFF" />
       <Text style={styles.floatingText}>Terverifikasi</Text>
     </View>
   );

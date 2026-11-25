@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppIcon } from '@/components/ui/app-icon';
+import { ROUTES } from '@/constants/routes';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 import { useResponsive } from '@/hooks/use-responsive';
@@ -31,11 +32,7 @@ export function TabHeader({ title }: TabHeaderProps) {
             <Text style={styles.tabTitle} numberOfLines={1}>
               {title}
             </Text>
-            {user.role === 'OWNER' && (
-              <View style={styles.ownerModeBadge}>
-                <Text style={styles.ownerModeText}>Pemilik</Text>
-              </View>
-            )}
+
           </View>
 
           <View style={styles.rightActions}>
@@ -46,7 +43,7 @@ export function TabHeader({ title }: TabHeaderProps) {
                 clearUnreadNotifications();
               }}
               style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}>
-              <MaterialIcons name="notifications-none" size={23} color={Palette.neutral[700]} />
+              <AppIcon name="notifications-outline" size={22} color={Palette.neutral[700]} />
               {unreadNotifications > 0 && <View style={styles.unreadDot} />}
             </Pressable>
 
@@ -70,12 +67,12 @@ export function TabHeader({ title }: TabHeaderProps) {
             <View style={styles.notifHeader}>
               <Text style={styles.notifTitle}>Notifikasi Terbaru</Text>
               <Pressable onPress={() => setNotifOpen(false)}>
-                <MaterialIcons name="close" size={20} color={Palette.neutral[500]} />
+                <AppIcon name="close" size={20} color={Palette.neutral[500]} />
               </Pressable>
             </View>
             <View style={styles.notifItem}>
               <View style={[styles.notifIcon, { backgroundColor: Palette.semantic.success50 }]}>
-                <MaterialIcons name="check-circle" size={18} color={Palette.semantic.success600} />
+                <AppIcon name="check-circle" size={18} color={Palette.semantic.success600} />
               </View>
               <View style={styles.notifTextWrap}>
                 <Text style={styles.notifItemTitle}>Booking Disetujui</Text>
@@ -86,7 +83,7 @@ export function TabHeader({ title }: TabHeaderProps) {
             </View>
             <View style={styles.notifItem}>
               <View style={[styles.notifIcon, { backgroundColor: Palette.primary[50] }]}>
-                <MaterialIcons name="schedule" size={18} color={Palette.primary[600]} />
+                <AppIcon name="clock" size={18} color={Palette.primary[600]} />
               </View>
               <View style={styles.notifTextWrap}>
                 <Text style={styles.notifItemTitle}>Pengingat Konfirmasi</Text>
@@ -105,10 +102,16 @@ export function TabHeader({ title }: TabHeaderProps) {
 interface StackHeaderProps {
   title?: string;
   showBrandLogo?: boolean;
+  hideBack?: boolean;
   onBack?: () => void;
 }
 
-export function StackHeader({ title, showBrandLogo = false, onBack }: StackHeaderProps) {
+export function StackHeader({
+  title,
+  showBrandLogo = false,
+  hideBack = false,
+  onBack,
+}: StackHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
@@ -121,7 +124,7 @@ export function StackHeader({ title, showBrandLogo = false, onBack }: StackHeade
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace('/index');
+      router.replace(ROUTES.home);
     }
   };
 
@@ -132,17 +135,21 @@ export function StackHeader({ title, showBrandLogo = false, onBack }: StackHeade
         { paddingTop: isMobile ? Math.max(insets.top, 8) : 10 },
       ]}>
       <View style={[styles.stackHeaderInner, !isMobile && styles.tabHeaderWide]}>
-        <Pressable
-          accessibilityLabel="Kembali"
-          onPress={handleBack}
-          style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}>
-          <MaterialIcons name="arrow-back" size={22} color={Palette.neutral[700]} />
-        </Pressable>
+        {hideBack ? (
+          <View style={styles.headerSpacer} />
+        ) : (
+          <Pressable
+            accessibilityLabel="Kembali"
+            onPress={handleBack}
+            style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}>
+            <AppIcon name="arrow-back" size={21} color={Palette.neutral[700]} />
+          </Pressable>
+        )}
 
         {showBrandLogo ? (
           <View style={styles.brandRow}>
             <View style={styles.brandBadge}>
-              <MaterialIcons name="home-work" size={16} color="#FFFFFF" />
+              <AppIcon name="business" size={15} color="#FFFFFF" />
             </View>
             <Text style={styles.brandTitle}>Kostly</Text>
           </View>
@@ -190,20 +197,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_700Bold',
     fontWeight: '700',
     color: Palette.neutral[900],
-  },
-  ownerModeBadge: {
-    backgroundColor: Palette.primary[50],
-    borderWidth: 1,
-    borderColor: Palette.primary[200],
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 9999,
-  },
-  ownerModeText: {
-    fontSize: 11,
-    fontFamily: 'Inter_600SemiBold',
-    fontWeight: '600',
-    color: Palette.primary[700],
   },
   rightActions: {
     flexDirection: 'row',

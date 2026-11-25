@@ -1,9 +1,10 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppIcon } from '@/components/ui/app-icon';
+import type { AppIconName } from '@/components/ui/app-icon.types';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 
@@ -13,28 +14,28 @@ export type MobileTabBarProps = Parameters<ExpoTabBarFn>[0];
 interface TabMeta {
   name: string;
   label: string;
-  activeIcon: keyof typeof MaterialIcons.glyphMap;
-  inactiveIcon: keyof typeof MaterialIcons.glyphMap;
+  activeIcon: AppIconName;
+  inactiveIcon: AppIconName;
 }
 
-const TENANT_TABS: Record<string, TabMeta> = {
+const TAB_CONFIG: Record<string, TabMeta> = {
   index: {
     name: 'index',
     label: 'Beranda',
     activeIcon: 'home',
-    inactiveIcon: 'home',
+    inactiveIcon: 'home-outline',
   },
   explore: {
     name: 'explore',
     label: 'Jelajah',
-    activeIcon: 'explore',
-    inactiveIcon: 'explore',
+    activeIcon: 'compass',
+    inactiveIcon: 'compass-outline',
   },
   bookings: {
     name: 'bookings',
     label: 'Booking',
-    activeIcon: 'calendar-today',
-    inactiveIcon: 'calendar-today',
+    activeIcon: 'calendar',
+    inactiveIcon: 'calendar-outline',
   },
   profile: {
     name: 'profile',
@@ -56,16 +57,20 @@ export function MobileTabBar({ state, emitter, navigateToTab }: MobileTabBarProp
       ]}>
       <View style={styles.inner}>
         {state.routes.map((route, index) => {
-          const meta = TENANT_TABS[route.name];
+          const meta = TAB_CONFIG[route.name];
           if (!meta) return null;
 
           const isFocused = state.index === index;
-          const label =
-            user.role === 'OWNER' && route.name === 'explore'
-              ? 'Properti'
-              : meta.label;
+          const isOwnerExplore = user.role === 'OWNER' && route.name === 'explore';
+          const label = isOwnerExplore ? 'Properti' : meta.label;
 
-          const iconName = isFocused ? meta.activeIcon : meta.inactiveIcon;
+          const iconName: AppIconName = isOwnerExplore
+            ? isFocused
+              ? 'business'
+              : 'business-outline'
+            : isFocused
+              ? meta.activeIcon
+              : meta.inactiveIcon;
           const color = isFocused ? Palette.primary[600] : Palette.neutral[500];
 
           const onPress = () => {
@@ -87,7 +92,7 @@ export function MobileTabBar({ state, emitter, navigateToTab }: MobileTabBarProp
               accessibilityLabel={label}
               onPress={onPress}
               style={({ pressed }) => [styles.tabItem, pressed && styles.pressed]}>
-              <MaterialIcons name={iconName} size={23} color={color} />
+              <AppIcon name={iconName} size={22} color={color} />
               <Text
                 style={[
                   styles.tabLabel,

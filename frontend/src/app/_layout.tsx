@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -6,13 +6,20 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { Manrope_600SemiBold, Manrope_700Bold } from '@expo-google-fonts/manrope';
-import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useFonts } from 'expo-font';
+import {
+  DefaultTheme,
+  Stack,
+  ThemeProvider,
+  useRootNavigationState,
+  useRouter,
+  useSegments,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 
 import { Palette } from '@/constants/theme';
-import { AppProvider } from '@/context/app-context';
+import { AppProvider, useApp } from '@/context/app-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,6 +34,28 @@ const KostlyLightTheme = {
     primary: Palette.primary[600],
   },
 };
+
+function AuthNavigatorGate({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useApp();
+  const segments = useSegments();
+  const router = useRouter();
+  const rootNavigationState = useRootNavigationState();
+
+  const firstSegment = segments[0];
+  const isAuthRoute =
+    firstSegment === 'login' ||
+    firstSegment === 'register' ||
+    firstSegment === 'forgot-password';
+
+  useEffect(() => {
+    if (!rootNavigationState?.key) return;
+    if (!isAuthenticated && !isAuthRoute) {
+      router.replace('/login');
+    }
+  }, [isAuthenticated, isAuthRoute, rootNavigationState?.key, router]);
+
+  return <>{children}</>;
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -52,19 +81,21 @@ export default function RootLayout() {
     <AppProvider>
       <ThemeProvider value={KostlyLightTheme}>
         <StatusBar style="dark" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: Palette.neutral[50] },
-          }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="login" />
-          <Stack.Screen name="register" />
-          <Stack.Screen name="forgot-password" />
-          <Stack.Screen name="properties/[id]" />
-          <Stack.Screen name="owner/properties/index" />
-          <Stack.Screen name="owner/properties/new" />
-        </Stack>
+        <AuthNavigatorGate>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: Palette.neutral[50] },
+            }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="login" />
+            <Stack.Screen name="register" />
+            <Stack.Screen name="forgot-password" />
+            <Stack.Screen name="properties/[id]" />
+            <Stack.Screen name="owner/properties/index" />
+            <Stack.Screen name="owner/properties/new" />
+          </Stack>
+        </AuthNavigatorGate>
       </ThemeProvider>
     </AppProvider>
   );

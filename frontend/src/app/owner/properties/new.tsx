@@ -9,13 +9,15 @@ import {
   View,
 } from 'react-native';
 import { Image } from 'expo-image';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppIcon } from '@/components/ui/app-icon';
+import type { AppIconName } from '@/components/ui/app-icon.types';
 import { ToastBanner } from '@/components/ui/confirm-dialog';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { StackHeader } from '@/components/ui/screen-header';
+import { ROUTES } from '@/constants/routes';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 import { CITY_OPTIONS, SHARED_FACILITY_OPTIONS } from '@/data/mock-data';
@@ -143,7 +145,7 @@ export default function AddPropertyScreen() {
     addOwnerProperty(buildPropertyRecord('DRAFT'));
     showToast('Informasi properti valid! Mengalihkan ke Tipe Kamar...');
     setTimeout(() => {
-      router.replace('/owner/properties/index');
+      router.replace(ROUTES.ownerProperties);
     }, 650);
   };
 
@@ -189,7 +191,7 @@ export default function AddPropertyScreen() {
           <View style={styles.formContainer}>
             {/* Educational Micro-Banner */}
             <View style={styles.infoBanner}>
-              <MaterialIcons name="info" size={20} color={Palette.primary[600]} />
+              <AppIcon name="info" size={20} color={Palette.primary[600]} />
               <View style={styles.infoTextWrap}>
                 <Text style={styles.infoTitle}>Sistem Berjenjang Kostly</Text>
                 <Text style={styles.infoDesc}>
@@ -202,7 +204,7 @@ export default function AddPropertyScreen() {
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.cardIconBox}>
-                  <MaterialIcons name="apartment" size={20} color={Palette.primary[600]} />
+                  <AppIcon name="business" size={20} color={Palette.primary[600]} />
                 </View>
                 <View style={styles.cardHeaderText}>
                   <Text style={styles.cardTitle}>Informasi Dasar Kost</Text>
@@ -229,7 +231,7 @@ export default function AddPropertyScreen() {
                     style={styles.inputField}
                   />
                   {propertyName.trim().length >= 5 && (
-                    <MaterialIcons
+                    <AppIcon
                       name="check-circle"
                       size={20}
                       color={Palette.semantic.success600}
@@ -248,7 +250,7 @@ export default function AddPropertyScreen() {
                 <View style={styles.genderGroup}>
                   {(
                     [
-                      { value: 'CAMPUR', label: 'Campur', icon: 'group' },
+                      { value: 'CAMPUR', label: 'Campur', icon: 'people' },
                       { value: 'PUTRA', label: 'Khusus Putra', icon: 'male' },
                       { value: 'PUTRI', label: 'Khusus Putri', icon: 'female' },
                     ] as const
@@ -259,8 +261,8 @@ export default function AddPropertyScreen() {
                         key={opt.value}
                         onPress={() => setGenderType(opt.value)}
                         style={[styles.genderPill, active && styles.genderPillActive]}>
-                        <MaterialIcons
-                          name={opt.icon}
+                        <AppIcon
+                          name={opt.icon as AppIconName}
                           size={16}
                           color={active ? Palette.primary[700] : Palette.neutral[600]}
                         />
@@ -302,7 +304,7 @@ export default function AddPropertyScreen() {
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.cardIconBox}>
-                  <MaterialIcons name="location-on" size={20} color={Palette.primary[600]} />
+                  <AppIcon name="location" size={20} color={Palette.primary[600]} />
                 </View>
                 <View style={styles.cardHeaderText}>
                   <Text style={styles.cardTitle}>Alamat & Aksesibilitas</Text>
@@ -320,7 +322,7 @@ export default function AddPropertyScreen() {
                   onPress={() => setCityPickerOpen(true)}
                   style={styles.selectBox}>
                   <Text style={styles.selectText}>{selectedCity.label}</Text>
-                  <MaterialIcons name="expand-more" size={20} color={Palette.neutral[500]} />
+                  <AppIcon name="chevron-down" size={20} color={Palette.neutral[500]} />
                 </Pressable>
               </View>
 
@@ -336,7 +338,7 @@ export default function AddPropertyScreen() {
                   style={styles.simpleInput}
                 />
                 <View style={styles.landmarkPill}>
-                  <MaterialIcons name="place" size={16} color={Palette.primary[600]} />
+                  <AppIcon name="location-outline" size={16} color={Palette.primary[600]} />
                   <Text style={styles.landmarkText}>
                     Patokan: 400m di belakang Ashta District 8 Mall
                   </Text>
@@ -346,14 +348,14 @@ export default function AddPropertyScreen() {
               {/* Map Snapshot Preview */}
               <View style={styles.mapPreview}>
                 <View style={styles.mapGridOverlay}>
-                  <MaterialIcons name="map" size={34} color={Palette.primary[300]} />
+                  <AppIcon name="map" size={34} color={Palette.primary[300]} />
                   <Text style={styles.mapCoordText}>
                     {selectedCity.city}, {selectedCity.province}
                   </Text>
                 </View>
                 <View style={styles.mapFooterBar}>
                   <View style={styles.mapPinRow}>
-                    <MaterialIcons name="near-me" size={17} color={Palette.primary[600]} />
+                    <AppIcon name="navigate" size={17} color={Palette.primary[600]} />
                     <Text style={styles.mapPinLabel}>Pin Lokasi Terkonfirmasi</Text>
                   </View>
                   <Pressable onPress={() => showToast('Koordinat peta diperbarui.')}>
@@ -367,7 +369,7 @@ export default function AddPropertyScreen() {
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.cardIconBox}>
-                  <MaterialIcons name="room-service" size={20} color={Palette.primary[600]} />
+                  <AppIcon name="room-service" size={20} color={Palette.primary[600]} />
                 </View>
                 <View style={styles.cardHeaderText}>
                   <Text style={styles.cardTitle}>Fasilitas Bersama</Text>
@@ -386,7 +388,7 @@ export default function AddPropertyScreen() {
                       onPress={() => toggleFacility(fac.label)}
                       style={[styles.facilityOption, checked && styles.facilityOptionActive]}>
                       <View style={[styles.checkSquare, checked && styles.checkSquareActive]}>
-                        {checked && <MaterialIcons name="check" size={13} color="#FFFFFF" />}
+                        {checked && <AppIcon name="check" size={13} color="#FFFFFF" />}
                       </View>
                       <View style={styles.facilityTextWrap}>
                         <Text style={styles.facilityLabel} numberOfLines={1}>
@@ -407,7 +409,7 @@ export default function AddPropertyScreen() {
               <View style={styles.photoCardTop}>
                 <View style={styles.cardHeader}>
                   <View style={styles.cardIconBox}>
-                    <MaterialIcons name="add-a-photo" size={20} color={Palette.primary[600]} />
+                    <AppIcon name="camera-add" size={20} color={Palette.primary[600]} />
                   </View>
                   <View style={styles.cardHeaderText}>
                     <Text style={styles.cardTitle}>Foto Utama Gedung Kost</Text>
@@ -425,7 +427,7 @@ export default function AddPropertyScreen() {
                 onPress={handleSimulateUpload}
                 style={({ pressed }) => [styles.dropzone, pressed && styles.pressed]}>
                 <View style={styles.dropzoneIcon}>
-                  <MaterialIcons name="cloud-upload" size={26} color={Palette.primary[600]} />
+                  <AppIcon name="cloud-upload" size={26} color={Palette.primary[600]} />
                 </View>
                 <Text style={styles.dropzoneTitle}>Ketuk untuk Mengunggah Foto Gedung</Text>
                 <Text style={styles.dropzoneSub}>
@@ -454,14 +456,14 @@ export default function AddPropertyScreen() {
                         setPhotos((prev) => prev.filter((item) => item.id !== photo.id))
                       }
                       style={styles.removePhotoBtn}>
-                      <MaterialIcons name="close" size={15} color="#FFFFFF" />
+                      <AppIcon name="close" size={15} color="#FFFFFF" />
                     </Pressable>
                   </View>
                 ))}
               </View>
 
               <View style={styles.photoNotice}>
-                <MaterialIcons name="verified" size={17} color={Palette.semantic.warning600} />
+                <AppIcon name="verified" size={17} color={Palette.semantic.warning600} />
                 <Text style={styles.photoNoticeText}>
                   Foto kamar tidur & kamar mandi pribadi akan diunggah pada tahap spesifikasi unit kamar.
                 </Text>
@@ -483,12 +485,12 @@ export default function AddPropertyScreen() {
               onPress={handleNextStep}
               style={({ pressed }) => [styles.nextBtn, pressed && styles.pressed]}>
               <Text style={styles.nextBtnText}>Lanjut ke Pengaturan Kamar</Text>
-              <MaterialIcons name="arrow-forward" size={19} color="#FFFFFF" />
+              <AppIcon name="arrow-forward" size={19} color="#FFFFFF" />
             </Pressable>
             <Pressable
               onPress={handleSaveDraft}
               style={({ pressed }) => [styles.draftBtn, pressed && styles.pressed]}>
-              <MaterialIcons name="bookmark-outline" size={18} color={Palette.neutral[600]} />
+              <AppIcon name="bookmark-outline" size={18} color={Palette.neutral[600]} />
               <Text style={styles.draftBtnText}>Simpan sebagai Draf</Text>
             </Pressable>
           </View>
@@ -522,7 +524,7 @@ export default function AddPropertyScreen() {
                     {city.label}
                   </Text>
                   {selected && (
-                    <MaterialIcons name="check" size={18} color={Palette.primary[600]} />
+                    <AppIcon name="check" size={18} color={Palette.primary[600]} />
                   )}
                 </Pressable>
               );

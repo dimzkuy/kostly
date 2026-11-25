@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { Palette } from '@/constants/theme';
 import { formatIDR } from '@/data/mock-data';
 import type { PropertyItem } from '@/types/kostly';
@@ -14,6 +14,7 @@ interface PropertyCardProps {
   onToggleWishlist: (id: string) => void;
   onPressDetail: (id: string) => void;
   priceLabel?: string;
+  showWishlist?: boolean;
 }
 
 export function PropertyCard({
@@ -22,6 +23,7 @@ export function PropertyCard({
   onToggleWishlist,
   onPressDetail,
   priceLabel = 'Mulai dari',
+  showWishlist = true,
 }: PropertyCardProps) {
   const locationText = property.landmark
     ? `${property.city} • ${property.landmark}`
@@ -49,28 +51,30 @@ export function PropertyCard({
           )}
         </View>
 
-        <Pressable
-          accessibilityLabel="Simpan ke Wishlist"
-          onPress={(e) => {
-            e.stopPropagation();
-            onToggleWishlist(property.id);
-          }}
-          style={({ pressed }) => [styles.wishlistBtn, pressed && styles.btnPressed]}>
-          <MaterialIcons
-            name={isWishlisted ? 'favorite' : 'favorite-border'}
-            size={18}
-            color={isWishlisted ? Palette.semantic.danger600 : Palette.neutral[700]}
-          />
-        </Pressable>
+        {showWishlist && (
+          <Pressable
+            accessibilityLabel="Simpan ke Wishlist"
+            onPress={(e) => {
+              e.stopPropagation();
+              onToggleWishlist(property.id);
+            }}
+            style={({ pressed }) => [styles.wishlistBtn, pressed && styles.btnPressed]}>
+            <AppIcon
+              name={isWishlisted ? 'heart' : 'heart-outline'}
+              size={18}
+              color={isWishlisted ? Palette.semantic.danger600 : Palette.neutral[700]}
+            />
+          </Pressable>
+        )}
 
         <View style={styles.ratingPill}>
-          <MaterialIcons name="star" size={13} color="#F59E0B" />
+          <AppIcon name="star" size={13} color="#F59E0B" />
           <Text style={styles.ratingValue}>{property.rating.toFixed(1)}</Text>
           <Text style={styles.ratingCount}>({property.reviewCount})</Text>
         </View>
 
         <View style={styles.photoPill}>
-          <MaterialIcons name="photo-camera" size={12} color="#FFFFFF" />
+          <AppIcon name="camera" size={12} color="#FFFFFF" />
           <Text style={styles.photoText}>{property.photoCount} Foto</Text>
         </View>
       </View>
@@ -81,7 +85,7 @@ export function PropertyCard({
             {property.name}
           </Text>
           <View style={styles.locationRow}>
-            <MaterialIcons name="location-on" size={14} color={Palette.primary[500]} />
+            <AppIcon name="location" size={14} color={Palette.primary[500]} />
             <Text style={styles.locationText} numberOfLines={1}>
               {locationText}
             </Text>
@@ -109,7 +113,7 @@ export function PropertyCard({
             onPress={() => onPressDetail(property.id)}
             style={({ pressed }) => [styles.detailBtn, pressed && styles.detailBtnPressed]}>
             <Text style={styles.detailBtnText}>Lihat Detail</Text>
-            <MaterialIcons name="chevron-right" size={16} color="#FFFFFF" />
+            <AppIcon name="chevron-right" size={16} color="#FFFFFF" />
           </Pressable>
         </View>
       </View>

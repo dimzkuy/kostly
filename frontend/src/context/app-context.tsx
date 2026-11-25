@@ -24,6 +24,7 @@ interface AppContextValue {
   }) => BookingItem;
   updateBookingStatus: (bookingId: string, status: BookingItem['status'], note?: string) => void;
   addOwnerProperty: (property: PropertyItem) => void;
+  updateOwnerProperty: (property: PropertyItem) => void;
   clearUnreadNotifications: () => void;
 }
 
@@ -51,7 +52,7 @@ function getInitials(name: string): string {
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile>(DEFAULT_USER);
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [properties, setProperties] = useState<PropertyItem[]>(MOCK_PROPERTIES);
   const [wishlistIds, setWishlistIds] = useState<string[]>(['prop-senopati-01', 'prop-kebayoran-02']);
   const [bookings, setBookings] = useState<BookingItem[]>(INITIAL_BOOKINGS);
@@ -111,6 +112,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         );
       },
       createBookingRequest: ({ property, roomId, startDate, durationMonths }) => {
+        if (user.role === 'OWNER') {
+          throw new Error('Pemilik kost tidak diperbolehkan mengajukan sewa.');
+        }
         const room = property.rooms.find((r) => r.id === roomId) ?? property.rooms[0];
         const endDate = computeCalendarEndDate(startDate, durationMonths);
         const newBooking: BookingItem = {
@@ -142,6 +146,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       },
       addOwnerProperty: (property) => {
         setProperties((prev) => [property, ...prev]);
+      },
+      updateOwnerProperty: (property) => {
+        setProperties((prev) => prev.map((p) => (p.id === property.id ? property : p)));
       },
       clearUnreadNotifications: () => {
         setUnreadNotifications(0);

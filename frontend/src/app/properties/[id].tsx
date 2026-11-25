@@ -9,9 +9,9 @@ import {
   View,
 } from 'react-native';
 import { Image } from 'expo-image';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { ToastBanner } from '@/components/ui/confirm-dialog';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { StackHeader } from '@/components/ui/screen-header';
@@ -24,12 +24,14 @@ import type { RoomItem } from '@/types/kostly';
 export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { properties, wishlistIds, toggleWishlist, createBookingRequest } = useApp();
+  const { user, properties, wishlistIds, toggleWishlist, createBookingRequest } = useApp();
 
+  const isOwner = user.role === 'OWNER';
   const property = useMemo(
     () => properties.find((p) => p.id === id) ?? properties[0],
     [properties, id]
   );
+  const isOwnedByMe = isOwner && property.ownerId === user.id;
 
   const [selectedRoom, setSelectedRoom] = useState<RoomItem | null>(null);
   const [startDate, setStartDate] = useState('2026-12-01');
@@ -39,7 +41,7 @@ export default function PropertyDetailScreen() {
   const isWishlisted = wishlistIds.includes(property.id);
 
   const handleConfirmBooking = () => {
-    if (!selectedRoom) return;
+    if (!selectedRoom || isOwner) return;
     createBookingRequest({
       property,
       roomId: selectedRoom.id,
@@ -74,21 +76,24 @@ export default function PropertyDetailScreen() {
               {property.verified && <VerifiedBadge />}
               <GenderBadge genderType={property.genderType} />
             </View>
-            <Pressable
-              onPress={() => toggleWishlist(property.id)}
-              style={styles.wishlistBtn}>
-              <MaterialIcons
-                name={isWishlisted ? 'favorite' : 'favorite-border'}
-                size={20}
-                color={isWishlisted ? Palette.semantic.danger600 : Palette.neutral[700]}
-              />
-            </Pressable>
+            {!isOwner && (
+              <Pressable
+                accessibilityLabel="Simpan ke Wishlist"
+                onPress={() => toggleWishlist(property.id)}
+                style={styles.wishlistBtn}>
+                <AppIcon
+                  name={isWishlisted ? 'heart' : 'heart-outline'}
+                  size={20}
+                  color={isWishlisted ? Palette.semantic.danger600 : Palette.neutral[700]}
+                />
+              </Pressable>
+            )}
           </View>
 
           {/* Main Info Card */}
           <View style={styles.infoCard}>
             <View style={styles.ratingRow}>
-              <MaterialIcons name="star" size={16} color="#F59E0B" />
+              <AppIcon name="star" size={16} color="#F59E0B" />
               <Text style={styles.ratingText}>
                 {property.rating.toFixed(1)} ({property.reviewCount} ulasan)
               </Text>
@@ -101,7 +106,7 @@ export default function PropertyDetailScreen() {
             <Text style={styles.title}>{property.name}</Text>
 
             <View style={styles.addressRow}>
-              <MaterialIcons name="location-on" size={16} color={Palette.primary[600]} />
+              <AppIcon name="location" size={16} color={Palette.primary[600]} />
               <Text style={styles.addressText}>
                 {property.address}
                 {property.landmark ? ` • ${property.landmark}` : ''}
@@ -113,7 +118,7 @@ export default function PropertyDetailScreen() {
             <View style={styles.facilitiesWrap}>
               {property.facilities.map((fac) => (
                 <View key={fac} style={styles.facilityChip}>
-                  <MaterialIcons name="check-circle" size={14} color={Palette.primary[600]} />
+                  <AppIcon name="check-circle" size={14} color={Palette.primary[600]} />
                   <Text style={styles.facilityText}>{fac}</Text>
                 </View>
               ))}
@@ -123,9 +128,6 @@ export default function PropertyDetailScreen() {
           {/* Rooms Section */}
           <View style={styles.sectionBlock}>
             <Text style={styles.sectionTitle}>Pilihan Tipe Kamar</Text>
-            <Text style={styles.sectionSub}>
-              Pengajuan sewa membutuhkan persetujuan pemilik kost (bukan konfirmasi instan).
-            </Text>
 
             <View style={styles.roomList}>
               {property.rooms.map((room) => {
@@ -157,18 +159,26 @@ export default function PropertyDetailScreen() {
                         <Text style={styles.priceValue}>{formatIDR(room.monthlyPrice)}</Text>
                         <Text style={styles.priceUnit}>/ bulan</Text>
                       </View>
-                      <Pressable
-                        disabled={!bookable}
-                        onPress={() => setSelectedRoom(room)}
-                        style={({ pressed }) => [
-                          styles.bookBtn,
-                          !bookable && styles.bookBtnDisabled,
-                          pressed && styles.pressed,
-                        ]}>
-                        <Text style={styles.bookBtnText}>
-                          {bookable ? 'Ajukan Sewa' : 'Tidak Tersedia'}
-                        </Text>
-                      </Pressable>
+                      {isOwner ? (
+                        <View style={styles.ownerRoomBadge}>
+                          <Text style={styles.ownerRoomBadgeText}>
+                            {bookable ? `${room.availableCount} Unit Tersedia` : 'Tidak Tersedia'}
+                          </Text>
+                        </View>
+                      ) : (
+                        <Pressable
+                          disabled={!bookable}
+                          onPress={() => setSelectedRoom(room)}
+                          style={({ pressed }) => [
+                            styles.bookBtn,
+                            !bookable && styles.bookBtnDisabled,
+                            pressed && styles.pressed,
+                          ]}>
+                          <Text style={styles.bookBtnText}>
+                            {bookable ? 'Ajukan Sewa' : 'Tidak Tersedia'}
+                          </Text>
+                        </Pressable>
+                      )}
                     </View>
                   </View>
                 );
@@ -178,91 +188,93 @@ export default function PropertyDetailScreen() {
         </ResponsiveContainer>
       </ScrollView>
 
-      {/* Booking Request Modal */}
-      <Modal
-        transparent
-        visible={!!selectedRoom}
-        animationType="fade"
-        onRequestClose={() => setSelectedRoom(null)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setSelectedRoom(null)}>
-          <Pressable style={styles.modalCard} onPress={() => {}}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ajukan Sewa Kamar</Text>
-              <Pressable onPress={() => setSelectedRoom(null)}>
-                <MaterialIcons name="close" size={20} color={Palette.neutral[500]} />
-              </Pressable>
-            </View>
+      {/* Booking Request Modal (Tenant only) */}
+      {!isOwner && (
+        <Modal
+          transparent
+          visible={!!selectedRoom}
+          animationType="fade"
+          onRequestClose={() => setSelectedRoom(null)}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setSelectedRoom(null)}>
+            <Pressable style={styles.modalCard} onPress={() => { }}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Ajukan Sewa Kamar</Text>
+                <Pressable onPress={() => setSelectedRoom(null)}>
+                  <AppIcon name="close" size={20} color={Palette.neutral[500]} />
+                </Pressable>
+              </View>
 
-            <Text style={styles.modalProp}>{property.name}</Text>
-            <Text style={styles.modalRoom}>{selectedRoom?.name}</Text>
+              <Text style={styles.modalProp}>{property.name}</Text>
+              <Text style={styles.modalRoom}>{selectedRoom?.name}</Text>
 
-            <View style={styles.modalField}>
-              <Text style={styles.modalLabel}>Tanggal Mulai Sewa (YYYY-MM-DD)</Text>
-              <TextInput
-                value={startDate}
-                onChangeText={setStartDate}
-                placeholder="2026-12-01"
-                style={styles.modalInput}
-              />
-            </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Tanggal Mulai Sewa (YYYY-MM-DD)</Text>
+                <TextInput
+                  value={startDate}
+                  onChangeText={setStartDate}
+                  placeholder="2026-12-01"
+                  style={styles.modalInput}
+                />
+              </View>
 
-            <View style={styles.modalField}>
-              <Text style={styles.modalLabel}>Durasi Sewa (Bulan)</Text>
-              <View style={styles.durationRow}>
-                {[1, 3, 6, 12].map((m) => (
-                  <Pressable
-                    key={m}
-                    onPress={() => setDurationMonths(m)}
-                    style={[
-                      styles.durChip,
-                      durationMonths === m && styles.durChipActive,
-                    ]}>
-                    <Text
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Durasi Sewa (Bulan)</Text>
+                <View style={styles.durationRow}>
+                  {[1, 3, 6, 12].map((m) => (
+                    <Pressable
+                      key={m}
+                      onPress={() => setDurationMonths(m)}
                       style={[
-                        styles.durChipText,
-                        durationMonths === m && styles.durChipTextActive,
+                        styles.durChip,
+                        durationMonths === m && styles.durChipActive,
                       ]}>
-                      {m} Bln
+                      <Text
+                        style={[
+                          styles.durChipText,
+                          durationMonths === m && styles.durChipTextActive,
+                        ]}>
+                        {m} Bln
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              {selectedRoom && (
+                <View style={styles.summaryBox}>
+                  <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Tarif Bulanan</Text>
+                    <Text style={styles.summaryVal}>{formatIDR(selectedRoom.monthlyPrice)}</Text>
+                  </View>
+                  <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Durasi</Text>
+                    <Text style={styles.summaryVal}>{durationMonths} bulan</Text>
+                  </View>
+                  <View style={[styles.summaryRow, styles.summaryTotalRow]}>
+                    <Text style={styles.summaryTotalLabel}>Total Estimasi</Text>
+                    <Text style={styles.summaryTotalVal}>
+                      {formatIDR(selectedRoom.monthlyPrice * durationMonths)}
                     </Text>
-                  </Pressable>
-                ))}
+                  </View>
+                </View>
+              )}
+
+              <View style={styles.modalNote}>
+                <AppIcon name="info" size={16} color={Palette.primary[600]} />
+                <Text style={styles.modalNoteText}>
+                  Pengajuan memerlukan persetujuan pemilik. Pembayaran diatur secara manual langsung dengan pemilik di luar aplikasi Kostly.
+                </Text>
               </View>
-            </View>
 
-            {selectedRoom && (
-              <View style={styles.summaryBox}>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Tarif Bulanan</Text>
-                  <Text style={styles.summaryVal}>{formatIDR(selectedRoom.monthlyPrice)}</Text>
-                </View>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Durasi</Text>
-                  <Text style={styles.summaryVal}>{durationMonths} bulan</Text>
-                </View>
-                <View style={[styles.summaryRow, styles.summaryTotalRow]}>
-                  <Text style={styles.summaryTotalLabel}>Total Estimasi</Text>
-                  <Text style={styles.summaryTotalVal}>
-                    {formatIDR(selectedRoom.monthlyPrice * durationMonths)}
-                  </Text>
-                </View>
-              </View>
-            )}
-
-            <View style={styles.modalNote}>
-              <MaterialIcons name="info" size={16} color={Palette.primary[600]} />
-              <Text style={styles.modalNoteText}>
-                Pengajuan memerlukan persetujuan pemilik. Pembayaran diatur secara manual langsung dengan pemilik di luar aplikasi Kostly.
-              </Text>
-            </View>
-
-            <Pressable
-              onPress={handleConfirmBooking}
-              style={({ pressed }) => [styles.confirmBtn, pressed && styles.pressed]}>
-              <Text style={styles.confirmBtnText}>Kirim Pengajuan Sewa</Text>
+              <Pressable
+                onPress={handleConfirmBooking}
+                style={({ pressed }) => [styles.confirmBtn, pressed && styles.pressed]}>
+                <Text style={styles.confirmBtnText}>Kirim Pengajuan Sewa</Text>
+              </Pressable>
             </Pressable>
           </Pressable>
-        </Pressable>
-      </Modal>
+        </Modal>
+      )}
 
       <ToastBanner visible={!!toastMsg} message={toastMsg ?? ''} />
     </View>
@@ -491,6 +503,48 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_600SemiBold',
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  ownerNoticeBanner: {
+    backgroundColor: Palette.primary[50],
+    borderWidth: 1,
+    borderColor: Palette.primary[100],
+    borderRadius: 12,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 4,
+  },
+  ownerNoticeText: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: 'Inter_400Regular',
+    color: Palette.primary[900],
+  },
+  ownerManageBtn: {
+    backgroundColor: Palette.primary[600],
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 9,
+  },
+  ownerManageBtnText: {
+    fontSize: 12,
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  ownerRoomBadge: {
+    backgroundColor: Palette.neutral[100],
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  ownerRoomBadgeText: {
+    fontSize: 12,
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: '600',
+    color: Palette.neutral[600],
   },
   modalBackdrop: {
     flex: 1,

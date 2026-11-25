@@ -10,19 +10,20 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { ToastBanner } from '@/components/ui/confirm-dialog';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { StackHeader } from '@/components/ui/screen-header';
+import { ROUTES } from '@/constants/routes';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 import type { UserRole } from '@/types/kostly';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login } = useApp();
+  const { isAuthenticated, login } = useApp();
 
   const [role, setRole] = useState<UserRole>('TENANT');
   const [email, setEmail] = useState('dimas.aditya@email.com');
@@ -52,14 +53,14 @@ export default function LoginScreen() {
         `Berhasil masuk sebagai ${role === 'TENANT' ? 'Pencari Kost' : 'Pemilik Kost'}!`
       );
       setTimeout(() => {
-        router.replace('/index');
+        router.replace(ROUTES.home);
       }, 450);
     }, 600);
   };
 
   return (
     <View style={styles.screen}>
-      <StackHeader showBrandLogo />
+      <StackHeader showBrandLogo hideBack={!isAuthenticated} />
 
       <KeyboardAvoidingView
         style={styles.flex1}
@@ -84,7 +85,7 @@ export default function LoginScreen() {
                 accessibilityState={{ selected: role === 'TENANT' }}
                 onPress={() => setRole('TENANT')}
                 style={[styles.segmentBtn, role === 'TENANT' && styles.segmentBtnActive]}>
-                <MaterialIcons
+                <AppIcon
                   name="search"
                   size={18}
                   color={role === 'TENANT' ? Palette.primary[600] : Palette.neutral[600]}
@@ -103,8 +104,8 @@ export default function LoginScreen() {
                 accessibilityState={{ selected: role === 'OWNER' }}
                 onPress={() => setRole('OWNER')}
                 style={[styles.segmentBtn, role === 'OWNER' && styles.segmentBtnActive]}>
-                <MaterialIcons
-                  name="real-estate-agent"
+                <AppIcon
+                  name="business-outline"
                   size={18}
                   color={role === 'OWNER' ? Palette.primary[600] : Palette.neutral[600]}
                 />
@@ -120,7 +121,7 @@ export default function LoginScreen() {
 
             {/* Role Context Hint */}
             <View style={styles.hintBanner}>
-              <MaterialIcons name="info" size={18} color={Palette.primary[600]} />
+              <AppIcon name="info" size={18} color={Palette.primary[600]} />
               <Text style={styles.hintText}>
                 {role === 'TENANT'
                   ? 'Akses favorit tersimpan, pengajuan sewa, dan tagihan kos.'
@@ -133,7 +134,7 @@ export default function LoginScreen() {
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>ALAMAT EMAIL</Text>
                 <View style={styles.inputBox}>
-                  <MaterialIcons name="mail-outline" size={20} color={Palette.neutral[400]} />
+                  <AppIcon name="mail-outline" size={20} color={Palette.neutral[400]} />
                   <TextInput
                     value={email}
                     onChangeText={setEmail}
@@ -150,7 +151,7 @@ export default function LoginScreen() {
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>KATA SANDI</Text>
                 <View style={styles.inputBox}>
-                  <MaterialIcons name="lock-outline" size={20} color={Palette.neutral[400]} />
+                  <AppIcon name="lock-outline" size={20} color={Palette.neutral[400]} />
                   <TextInput
                     value={password}
                     onChangeText={setPassword}
@@ -163,8 +164,8 @@ export default function LoginScreen() {
                     accessibilityLabel="Tampilkan atau sembunyikan kata sandi"
                     onPress={() => setShowPassword((v) => !v)}
                     hitSlop={8}>
-                    <MaterialIcons
-                      name={showPassword ? 'visibility-off' : 'visibility'}
+                    <AppIcon
+                      name={showPassword ? 'eye-off' : 'eye'}
                       size={20}
                       color={Palette.neutral[400]}
                     />
@@ -174,7 +175,7 @@ export default function LoginScreen() {
 
               {errorMsg && (
                 <View style={styles.errorBox}>
-                  <MaterialIcons name="error-outline" size={16} color={Palette.semantic.danger600} />
+                  <AppIcon name="error-outline" size={16} color={Palette.semantic.danger600} />
                   <Text style={styles.errorText}>{errorMsg}</Text>
                 </View>
               )}
@@ -184,7 +185,7 @@ export default function LoginScreen() {
                   onPress={() => setRememberMe((v) => !v)}
                   style={styles.checkboxRow}>
                   <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-                    {rememberMe && <MaterialIcons name="check" size={14} color="#FFFFFF" />}
+                    {rememberMe && <AppIcon name="check" size={14} color="#FFFFFF" />}
                   </View>
                   <Text style={styles.rememberText}>Ingat saya</Text>
                 </Pressable>
@@ -220,14 +221,14 @@ export default function LoginScreen() {
                 onPress={() => router.push('/register')}
                 style={styles.registerLinkRow}>
                 <Text style={styles.registerLink}>Daftar Sekarang</Text>
-                <MaterialIcons name="chevron-right" size={16} color={Palette.primary[600]} />
+                <AppIcon name="chevron-right" size={16} color={Palette.primary[600]} />
               </Pressable>
             </View>
 
             {/* Trust Card */}
             <View style={styles.trustCard}>
               <View style={styles.trustIconBox}>
-                <MaterialIcons name="verified-user" size={20} color={Palette.primary[600]} />
+                <AppIcon name="verified-user" size={20} color={Palette.primary[600]} />
               </View>
               <View style={styles.trustTextWrap}>
                 <Text style={styles.trustTitle}>Privasi & Keamanan Terjamin</Text>
@@ -364,6 +365,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter_400Regular',
     color: Palette.neutral[900],
+  },
+  passwordHint: {
+    fontSize: 11,
+    fontFamily: 'Inter_400Regular',
+    color: Palette.neutral[500],
   },
   errorBox: {
     flexDirection: 'row',

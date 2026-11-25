@@ -7,12 +7,14 @@ import {
   Text,
   View,
 } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
+import type { AppIconName } from '@/components/ui/app-icon.types';
 import { ConfirmDialog, ToastBanner } from '@/components/ui/confirm-dialog';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { TabHeader } from '@/components/ui/screen-header';
+import { ROUTES } from '@/constants/routes';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 
@@ -59,14 +61,14 @@ export default function ProfilSayaScreen() {
                 accessibilityLabel="Ganti Foto Profil"
                 onPress={() => showToast('Fitur unggah foto profil akan terhubung ke Supabase Storage.')}
                 style={({ pressed }) => [styles.cameraBadge, pressed && styles.pressed]}>
-                <MaterialIcons name="photo-camera" size={15} color="#FFFFFF" />
+                <AppIcon name="camera" size={14} color="#FFFFFF" />
               </Pressable>
             </View>
 
             <Text style={styles.userName}>{user.fullName}</Text>
 
             <View style={styles.verifiedBadge}>
-              <MaterialIcons name="verified" size={15} color={Palette.semantic.success600} />
+              <AppIcon name="verified" size={15} color={Palette.semantic.success600} />
               <Text style={styles.verifiedBadgeText}>
                 {user.role === 'OWNER'
                   ? 'Pemilik Kost Terverifikasi'
@@ -76,11 +78,11 @@ export default function ProfilSayaScreen() {
 
             <View style={styles.contactList}>
               <View style={styles.contactRow}>
-                <MaterialIcons name="mail-outline" size={15} color={Palette.neutral[400]} />
+                <AppIcon name="mail-outline" size={15} color={Palette.neutral[400]} />
                 <Text style={styles.contactText}>{user.email}</Text>
               </View>
               <View style={styles.contactRow}>
-                <MaterialIcons name="call" size={15} color={Palette.neutral[400]} />
+                <AppIcon name="call" size={15} color={Palette.neutral[400]} />
                 <Text style={styles.contactText}>{user.phone}</Text>
                 <View style={styles.dotSep} />
                 <Text style={styles.ktpText}>KTP Terverifikasi</Text>
@@ -94,7 +96,7 @@ export default function ProfilSayaScreen() {
               onPress={() => router.push('/bookings')}
               style={({ pressed }) => [styles.metricCard, pressed && styles.pressed]}>
               <View style={[styles.metricIconBox, { backgroundColor: Palette.primary[50] }]}>
-                <MaterialIcons name="meeting-room" size={20} color={Palette.primary[600]} />
+                <AppIcon name="bed" size={20} color={Palette.primary[600]} />
               </View>
               <Text style={styles.metricValue}>{activeBookingsCount}</Text>
               <Text style={styles.metricLabel} numberOfLines={1}>
@@ -106,7 +108,7 @@ export default function ProfilSayaScreen() {
               onPress={() => router.push('/bookings')}
               style={({ pressed }) => [styles.metricCard, pressed && styles.pressed]}>
               <View style={[styles.metricIconBox, { backgroundColor: Palette.neutral[100] }]}>
-                <MaterialIcons name="history" size={20} color={Palette.neutral[700]} />
+                <AppIcon name="history" size={20} color={Palette.neutral[700]} />
               </View>
               <Text style={styles.metricValue}>{historyCount}</Text>
               <Text style={styles.metricLabel} numberOfLines={1}>
@@ -118,7 +120,7 @@ export default function ProfilSayaScreen() {
               onPress={() => router.push('/explore')}
               style={({ pressed }) => [styles.metricCard, pressed && styles.pressed]}>
               <View style={[styles.metricIconBox, { backgroundColor: Palette.semantic.danger50 }]}>
-                <MaterialIcons name="favorite" size={20} color={Palette.semantic.danger600} />
+                <AppIcon name="heart" size={20} color={Palette.semantic.danger600} />
               </View>
               <Text style={styles.metricValue}>{wishlistIds.length}</Text>
               <Text style={styles.metricLabel} numberOfLines={1}>
@@ -145,26 +147,30 @@ export default function ProfilSayaScreen() {
                   />
                   <Divider />
                   <MenuRow
-                    icon="apartment"
+                    icon="business"
                     iconBg={Palette.neutral[100]}
                     iconColor={Palette.neutral[700]}
                     title="Daftar Properti Saya"
                     subtitle="Kelola Draf, Terbit, dan Arsip"
-                    onPress={() => router.push('/owner/properties/index')}
+                    onPress={() => router.push(ROUTES.ownerProperties)}
                   />
                   <Divider />
                 </>
               )}
 
-              <MenuRow
-                icon="bookmark"
-                iconBg={Palette.semantic.danger50}
-                iconColor={Palette.semantic.danger600}
-                title="Kost Disimpan (Wishlist)"
-                subtitle={`${wishlistIds.length} properti tersimpan`}
-                onPress={() => router.push('/explore')}
-              />
-              <Divider />
+              {user.role !== 'OWNER' && (
+                <>
+                  <MenuRow
+                    icon="bookmark"
+                    iconBg={Palette.semantic.danger50}
+                    iconColor={Palette.semantic.danger600}
+                    title="Kost Disimpan (Wishlist)"
+                    subtitle={`${wishlistIds.length} properti tersimpan`}
+                    onPress={() => router.push('/explore')}
+                  />
+                  <Divider />
+                </>
+              )}
               <MenuRow
                 icon="badge"
                 iconBg={Palette.primary[50]}
@@ -176,7 +182,7 @@ export default function ProfilSayaScreen() {
               />
               <Divider />
               <MenuRow
-                icon="receipt-long"
+                icon="receipt"
                 iconBg={Palette.neutral[100]}
                 iconColor={Palette.neutral[700]}
                 title="Riwayat Pembayaran Manual"
@@ -201,7 +207,7 @@ export default function ProfilSayaScreen() {
               style={({ pressed }) => [styles.switchBanner, pressed && styles.pressed]}>
               <View style={styles.switchLeft}>
                 <View style={[styles.rowIconBox, { backgroundColor: Palette.primary[50] }]}>
-                  <MaterialIcons name="swap-horiz" size={20} color={Palette.primary[600]} />
+                  <AppIcon name="swap-horiz" size={20} color={Palette.primary[600]} />
                 </View>
                 <View style={styles.rowTextWrap}>
                   <Text style={styles.rowTitle}>
@@ -216,7 +222,7 @@ export default function ProfilSayaScreen() {
                   </Text>
                 </View>
               </View>
-              <MaterialIcons name="chevron-right" size={22} color={Palette.neutral[400]} />
+              <AppIcon name="chevron-right" size={20} color={Palette.neutral[400]} />
             </Pressable>
           </View>
 
@@ -243,7 +249,7 @@ export default function ProfilSayaScreen() {
               <View style={styles.menuRow}>
                 <View style={styles.menuLeft}>
                   <View style={[styles.rowIconBox, { backgroundColor: Palette.semantic.success50 }]}>
-                    <MaterialIcons name="chat" size={19} color={Palette.semantic.success600} />
+                    <AppIcon name="chat" size={19} color={Palette.semantic.success600} />
                   </View>
                   <View style={styles.rowTextWrap}>
                     <Text style={styles.rowTitle}>Preferensi Notifikasi</Text>
@@ -265,7 +271,7 @@ export default function ProfilSayaScreen() {
             <Text style={styles.groupTitle}>BANTUAN & LEGAL</Text>
             <View style={styles.groupCard}>
               <MenuRow
-                icon="help-outline"
+                icon="help"
                 iconBg={Palette.neutral[100]}
                 iconColor={Palette.neutral[700]}
                 title="Pusat Bantuan Kostly & FAQ"
@@ -287,7 +293,7 @@ export default function ProfilSayaScreen() {
             <Pressable
               onPress={() => setLogoutConfirmOpen(true)}
               style={({ pressed }) => [styles.logoutBtn, pressed && styles.pressed]}>
-              <MaterialIcons name="logout" size={20} color={Palette.semantic.danger600} />
+              <AppIcon name="logout" size={20} color={Palette.semantic.danger600} />
               <Text style={styles.logoutText}>Keluar dari Akun</Text>
             </Pressable>
             <Text style={styles.versionText}>
@@ -325,7 +331,7 @@ function MenuRow({
   subtitleColor,
   onPress,
 }: {
-  icon: keyof typeof MaterialIcons.glyphMap;
+  icon: AppIconName;
   iconBg: string;
   iconColor: string;
   title: string;
@@ -339,7 +345,7 @@ function MenuRow({
       style={({ pressed }) => [styles.menuRow, pressed && styles.menuRowPressed]}>
       <View style={styles.menuLeft}>
         <View style={[styles.rowIconBox, { backgroundColor: iconBg }]}>
-          <MaterialIcons name={icon} size={20} color={iconColor} />
+          <AppIcon name={icon} size={20} color={iconColor} />
         </View>
         <View style={styles.rowTextWrap}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -350,7 +356,7 @@ function MenuRow({
           )}
         </View>
       </View>
-      <MaterialIcons name="chevron-right" size={22} color={Palette.neutral[400]} />
+      <AppIcon name="chevron-right" size={20} color={Palette.neutral[400]} />
     </Pressable>
   );
 }

@@ -10,9 +10,9 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { ToastBanner } from '@/components/ui/confirm-dialog';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { StackHeader } from '@/components/ui/screen-header';
@@ -55,9 +55,9 @@ export default function ForgotPasswordScreen() {
             {/* Hero Illustration */}
             <View style={styles.heroBlock}>
               <View style={styles.heroCircle}>
-                <MaterialIcons name="enhanced-encryption" size={40} color={Palette.primary[600]} />
+                <AppIcon name="shield-lock" size={38} color={Palette.primary[600]} />
                 <View style={styles.keyBadge}>
-                  <MaterialIcons name="vpn-key" size={15} color="#FFFFFF" />
+                  <AppIcon name="key" size={14} color="#FFFFFF" />
                 </View>
               </View>
               <Text style={styles.title}>Lupa Kata Sandi?</Text>
@@ -71,7 +71,7 @@ export default function ForgotPasswordScreen() {
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>Alamat Email</Text>
                 <View style={styles.inputBox}>
-                  <MaterialIcons name="mail-outline" size={20} color={Palette.neutral[400]} />
+                  <AppIcon name="mail-outline" size={20} color={Palette.neutral[400]} />
                   <TextInput
                     value={email}
                     onChangeText={(v) => {
@@ -86,7 +86,7 @@ export default function ForgotPasswordScreen() {
                   />
                 </View>
                 <View style={styles.helperRow}>
-                  <MaterialIcons name="info-outline" size={15} color={Palette.neutral[400]} />
+                  <AppIcon name="info-outline" size={15} color={Palette.neutral[400]} />
                   <Text style={styles.helperText}>
                     Pastikan alamat email Anda aktif untuk menerima tautan reset kata sandi.
                   </Text>
@@ -95,7 +95,7 @@ export default function ForgotPasswordScreen() {
 
               {errorMsg && (
                 <View style={styles.errorBox}>
-                  <MaterialIcons name="error-outline" size={16} color={Palette.semantic.danger600} />
+                  <AppIcon name="error-outline" size={16} color={Palette.semantic.danger600} />
                   <Text style={styles.errorText}>{errorMsg}</Text>
                 </View>
               )}
@@ -115,13 +115,13 @@ export default function ForgotPasswordScreen() {
                   </>
                 ) : status === 'sent' ? (
                   <>
-                    <MaterialIcons name="check" size={20} color="#FFFFFF" />
+                    <AppIcon name="check" size={20} color="#FFFFFF" />
                     <Text style={styles.submitText}>Terkirim!</Text>
                   </>
                 ) : (
                   <>
                     <Text style={styles.submitText}>Kirim Tautan Reset</Text>
-                    <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
+                    <AppIcon name="arrow-forward" size={20} color="#FFFFFF" />
                   </>
                 )}
               </Pressable>
@@ -138,7 +138,7 @@ export default function ForgotPasswordScreen() {
             <View style={styles.supportCard}>
               <View style={styles.supportTop}>
                 <View style={styles.supportIcon}>
-                  <MaterialIcons name="support-agent" size={20} color={Palette.primary[600]} />
+                  <AppIcon name="support" size={20} color={Palette.primary[600]} />
                 </View>
                 <View style={styles.supportTextWrap}>
                   <Text style={styles.supportTitle}>Butuh bantuan lebih lanjut?</Text>
@@ -154,14 +154,14 @@ export default function ForgotPasswordScreen() {
                   setTimeout(() => setToastMsg(null), 2600);
                 }}
                 style={({ pressed }) => [styles.supportBtn, pressed && styles.pressed]}>
-                <MaterialIcons name="mail" size={18} color={Palette.primary[600]} />
+                <AppIcon name="mail" size={18} color={Palette.primary[600]} />
                 <Text style={styles.supportBtnText}>Hubungi Dukungan Email</Text>
               </Pressable>
             </View>
 
             {/* Security Micro-Badge */}
             <View style={styles.microBadge}>
-              <MaterialIcons name="verified-user" size={16} color={Palette.neutral[400]} />
+              <AppIcon name="verified-user" size={16} color={Palette.neutral[400]} />
               <Text style={styles.microText}>
                 Proses enkripsi data terproteksi end-to-end
               </Text>

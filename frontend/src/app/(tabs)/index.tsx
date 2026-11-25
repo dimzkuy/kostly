@@ -7,25 +7,16 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { PropertyCard } from '@/components/ui/property-card';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { TabHeader } from '@/components/ui/screen-header';
+import { ROUTES } from '@/constants/routes';
 import { Palette } from '@/constants/theme';
 import { useApp } from '@/context/app-context';
 import { useResponsive } from '@/hooks/use-responsive';
-
-const HOME_CHIPS = [
-  'Semua',
-  'Jakarta Selatan',
-  'Bandung',
-  'Dekat Kampus',
-  'AC & KM Dalam',
-  'Putri',
-  'Campur',
-] as const;
 
 export default function BerandaScreen() {
   const router = useRouter();
@@ -33,7 +24,6 @@ export default function BerandaScreen() {
   const { user, properties, wishlistIds, bookings, toggleWishlist } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedChips, setSelectedChips] = useState<string[]>(['Semua']);
 
   const firstName = user.fullName.split(' ')[0] || 'Dimas';
 
@@ -45,54 +35,20 @@ export default function BerandaScreen() {
   const filteredProperties = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return publishedProperties.filter((prop) => {
-      const matchesSearch =
+      return (
         !q ||
         prop.name.toLowerCase().includes(q) ||
         prop.city.toLowerCase().includes(q) ||
         prop.address.toLowerCase().includes(q) ||
-        (prop.landmark?.toLowerCase().includes(q) ?? false);
-
-      if (!matchesSearch) return false;
-
-      if (selectedChips.includes('Semua') || selectedChips.length === 0) {
-        return true;
-      }
-
-      return selectedChips.some((chip) => {
-        if (chip === 'Jakarta Selatan') return prop.city === 'Jakarta Selatan';
-        if (chip === 'Bandung') return prop.city === 'Bandung';
-        if (chip === 'Putri') return prop.genderType === 'PUTRI';
-        if (chip === 'Campur') return prop.genderType === 'CAMPUR';
-        if (chip === 'Dekat Kampus') return prop.landmark?.toLowerCase().includes('kampus') ?? false;
-        if (chip === 'AC & KM Dalam') {
-          return (
-            prop.facilities.some((f) => f.includes('AC')) &&
-            prop.facilities.some((f) => f.includes('KM Dalam'))
-          );
-        }
-        return true;
-      });
+        (prop.landmark?.toLowerCase().includes(q) ?? false)
+      );
     });
-  }, [publishedProperties, searchQuery, selectedChips]);
+  }, [publishedProperties, searchQuery]);
 
   const popularList = filteredProperties.slice(0, 2);
   const nearbyList = filteredProperties.length > 1 ? filteredProperties.slice(1) : filteredProperties;
 
-  const toggleChip = (chip: string) => {
-    if (chip === 'Semua') {
-      setSelectedChips(['Semua']);
-      return;
-    }
-    setSelectedChips((prev) => {
-      const withoutAll = prev.filter((c) => c !== 'Semua');
-      const next = withoutAll.includes(chip)
-        ? withoutAll.filter((c) => c !== chip)
-        : [...withoutAll, chip];
-      return next.length === 0 ? ['Semua'] : next;
-    });
-  };
-
-  const activeFilterCount = selectedChips.includes('Semua') ? 0 : selectedChips.length;
+  const activeFilterCount = 3;
 
   const ownerProperties = properties.filter((p) => p.ownerId === user.id);
   const pendingBookingsCount = bookings.filter((b) => b.status === 'PENDING').length;
@@ -148,11 +104,11 @@ export default function BerandaScreen() {
                 <Pressable
                   onPress={() => router.push('/owner/properties/new')}
                   style={({ pressed }) => [styles.ownerPrimaryBtn, pressed && styles.pressed]}>
-                  <MaterialIcons name="add-business" size={18} color="#FFFFFF" />
+                  <AppIcon name="add-business" size={18} color="#FFFFFF" />
                   <Text style={styles.ownerPrimaryText}>Tambah Properti Kost</Text>
                 </Pressable>
                 <Pressable
-                  onPress={() => router.push('/owner/properties/index')}
+                  onPress={() => router.push(ROUTES.ownerProperties)}
                   style={({ pressed }) => [styles.ownerSecondaryBtn, pressed && styles.pressed]}>
                   <Text style={styles.ownerSecondaryText}>Kelola Properti</Text>
                 </Pressable>
@@ -164,7 +120,7 @@ export default function BerandaScreen() {
           <View style={styles.searchSection}>
             <View style={styles.searchRow}>
               <View style={styles.searchBox}>
-                <MaterialIcons name="search" size={20} color={Palette.neutral[400]} />
+                <AppIcon name="search" size={19} color={Palette.neutral[400]} />
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -179,7 +135,7 @@ export default function BerandaScreen() {
                     accessibilityLabel="Hapus pencarian"
                     onPress={() => setSearchQuery('')}
                     hitSlop={8}>
-                    <MaterialIcons name="cancel" size={18} color={Palette.neutral[400]} />
+                    <AppIcon name="close-circle" size={18} color={Palette.neutral[400]} />
                   </Pressable>
                 )}
               </View>
@@ -188,7 +144,7 @@ export default function BerandaScreen() {
                 accessibilityLabel="Filter Pencarian"
                 onPress={() => router.push('/explore')}
                 style={({ pressed }) => [styles.filterTrigger, pressed && styles.pressed]}>
-                <MaterialIcons name="tune" size={20} color={Palette.neutral[700]} />
+                <AppIcon name="filter" size={20} color={Palette.neutral[700]} />
                 <View style={styles.filterBadge}>
                   <Text style={styles.filterBadgeText}>
                     {activeFilterCount > 0 ? activeFilterCount : 3}
@@ -196,65 +152,33 @@ export default function BerandaScreen() {
                 </View>
               </Pressable>
             </View>
-
-            {/* Quick Chips */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.chipRow}>
-              {HOME_CHIPS.map((chip) => {
-                const active = selectedChips.includes(chip);
-                const isAll = chip === 'Semua' && active;
-                return (
-                  <Pressable
-                    key={chip}
-                    onPress={() => toggleChip(chip)}
-                    style={({ pressed }) => [
-                      styles.chip,
-                      isAll && styles.chipAllActive,
-                      !isAll && active && styles.chipSelected,
-                      pressed && styles.pressed,
-                    ]}>
-                    <Text
-                      style={[
-                        styles.chipText,
-                        isAll && styles.chipAllText,
-                        !isAll && active && styles.chipSelectedText,
-                      ]}>
-                      {chip}
-                    </Text>
-                    {!isAll && active && (
-                      <MaterialIcons name="check" size={14} color={Palette.primary[600]} />
-                    )}
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
           </View>
+
 
           {/* Section 1: Rekomendasi Kost Terpopuler */}
           <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleBlock}>
-              <Text style={styles.sectionTitle}>Rekomendasi Kost Terpopuler</Text>
-              <Text style={styles.sectionSubtitle}>Pilihan terfavorit dengan rating terbaik</Text>
+            <View style={styles.sectionTopRow}>
+              <Text style={styles.sectionTitle} numberOfLines={1}>
+                Rekomendasi Kost Terpopuler
+              </Text>
+              <Pressable
+                onPress={() => router.push('/explore')}
+                style={({ pressed }) => [styles.seeAllBtn, pressed && styles.pressed]}>
+                <Text style={styles.seeAllText}>Lihat Semua (248)</Text>
+                <AppIcon name="chevron-right" size={15} color={Palette.primary[600]} />
+              </Pressable>
             </View>
-            <Pressable
-              onPress={() => router.push('/explore')}
-              style={({ pressed }) => [styles.seeAllBtn, pressed && styles.pressed]}>
-              <Text style={styles.seeAllText}>Lihat Semua (248)</Text>
-              <MaterialIcons name="chevron-right" size={16} color={Palette.primary[600]} />
-            </Pressable>
+            <Text style={styles.sectionSubtitle}>Pilihan terfavorit dengan rating terbaik</Text>
           </View>
 
           {popularList.length === 0 ? (
             <View style={styles.emptyBox}>
-              <MaterialIcons name="search-off" size={32} color={Palette.neutral[400]} />
+              <AppIcon name="search-off" size={32} color={Palette.neutral[400]} />
               <Text style={styles.emptyTitle}>Tidak ada kost yang cocok</Text>
               <Text style={styles.emptySub}>Coba ubah kata kunci atau reset filter chip.</Text>
               <Pressable
                 onPress={() => {
                   setSearchQuery('');
-                  setSelectedChips(['Semua']);
                 }}
                 style={styles.resetBtn}>
                 <Text style={styles.resetBtnText}>Reset Filter</Text>
@@ -275,6 +199,7 @@ export default function BerandaScreen() {
                   <PropertyCard
                     property={prop}
                     isWishlisted={wishlistIds.includes(prop.id)}
+                    showWishlist={user.role !== 'OWNER'}
                     onToggleWishlist={toggleWishlist}
                     onPressDetail={(id) =>
                       router.push({ pathname: '/properties/[id]', params: { id } })
@@ -290,18 +215,20 @@ export default function BerandaScreen() {
           {nearbyList.length > 0 && (
             <>
               <View style={[styles.sectionHeader, styles.sectionSpaced]}>
-                <View style={styles.sectionTitleBlock}>
-                  <Text style={styles.sectionTitle}>Kost Baru di Sekitarmu</Text>
-                  <Text style={styles.sectionSubtitle}>
-                    Pilihan teranyar dengan fasilitas modern
+                <View style={styles.sectionTopRow}>
+                  <Text style={styles.sectionTitle} numberOfLines={1}>
+                    Kost Baru di Sekitarmu
                   </Text>
+                  <Pressable
+                    onPress={() => router.push('/explore')}
+                    style={({ pressed }) => [styles.seeAllBtn, pressed && styles.pressed]}>
+                    <Text style={styles.seeAllText}>Lihat Semua</Text>
+                    <AppIcon name="chevron-right" size={15} color={Palette.primary[600]} />
+                  </Pressable>
                 </View>
-                <Pressable
-                  onPress={() => router.push('/explore')}
-                  style={({ pressed }) => [styles.seeAllBtn, pressed && styles.pressed]}>
-                  <Text style={styles.seeAllText}>Lihat Semua</Text>
-                  <MaterialIcons name="chevron-right" size={16} color={Palette.primary[600]} />
-                </Pressable>
+                <Text style={styles.sectionSubtitle}>
+                  Pilihan teranyar dengan fasilitas modern
+                </Text>
               </View>
 
               <View style={[styles.grid, columns > 1 && styles.gridWide]}>
@@ -318,10 +245,11 @@ export default function BerandaScreen() {
                     <PropertyCard
                       property={prop}
                       isWishlisted={wishlistIds.includes(prop.id)}
+                      showWishlist={user.role !== 'OWNER'}
                       onToggleWishlist={toggleWishlist}
                       onPressDetail={(id) =>
-                      router.push({ pathname: '/properties/[id]', params: { id } })
-                    }
+                        router.push({ pathname: '/properties/[id]', params: { id } })
+                      }
                       priceLabel="Harga sewa"
                     />
                   </View>
@@ -438,7 +366,7 @@ const styles = StyleSheet.create({
   },
   searchSection: {
     gap: 12,
-    marginBottom: 18,
+    marginBottom: 22,
   },
   searchRow: {
     flexDirection: 'row',
@@ -530,21 +458,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    gap: 12,
-    marginBottom: 12,
+    gap: 3,
+    marginBottom: 14,
   },
   sectionSpaced: {
-    marginTop: 26,
+    marginTop: 28,
   },
-  sectionTitleBlock: {
-    flex: 1,
+  sectionTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
   },
   sectionTitle: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 15,
     lineHeight: 22,
+    letterSpacing: -0.25,
     fontFamily: 'Manrope_700Bold',
     fontWeight: '700',
     color: Palette.neutral[900],
@@ -554,9 +484,9 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontFamily: 'Inter_400Regular',
     color: Palette.neutral[500],
-    marginTop: 2,
   },
   seeAllBtn: {
+    flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
@@ -568,7 +498,7 @@ const styles = StyleSheet.create({
     color: Palette.primary[600],
   },
   grid: {
-    gap: 14,
+    gap: 16,
   },
   gridWide: {
     flexDirection: 'row',

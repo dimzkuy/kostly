@@ -8,9 +8,9 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { PropertyCard } from '@/components/ui/property-card';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { TabHeader } from '@/components/ui/screen-header';
@@ -42,7 +42,7 @@ type SortOption = (typeof SORT_OPTIONS)[number];
 export default function JelajahScreen() {
   const router = useRouter();
   const { isMobile, columns } = useResponsive();
-  const { properties, wishlistIds, toggleWishlist } = useApp();
+  const { user, properties, wishlistIds, toggleWishlist } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChips, setSelectedChips] = useState<string[]>([
@@ -132,7 +132,7 @@ export default function JelajahScreen() {
           <View style={styles.searchSection}>
             <View style={styles.searchRow}>
               <View style={styles.searchBox}>
-                <MaterialIcons name="search" size={20} color={Palette.neutral[400]} />
+                <AppIcon name="search" size={19} color={Palette.neutral[400]} />
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -145,7 +145,7 @@ export default function JelajahScreen() {
                     accessibilityLabel="Hapus pencarian"
                     onPress={() => setSearchQuery('')}
                     hitSlop={8}>
-                    <MaterialIcons name="cancel" size={18} color={Palette.neutral[400]} />
+                    <AppIcon name="close-circle" size={18} color={Palette.neutral[400]} />
                   </Pressable>
                 )}
               </View>
@@ -154,7 +154,7 @@ export default function JelajahScreen() {
                 accessibilityLabel="Filter Kost"
                 onPress={() => setFilterModalOpen(true)}
                 style={({ pressed }) => [styles.filterBtn, pressed && styles.pressed]}>
-                <MaterialIcons name="tune" size={21} color={Palette.neutral[700]} />
+                <AppIcon name="filter" size={20} color={Palette.neutral[700]} />
                 {activeFiltersCount > 0 && (
                   <View style={styles.filterCountBadge}>
                     <Text style={styles.filterCountText}>{activeFiltersCount}</Text>
@@ -190,7 +190,7 @@ export default function JelajahScreen() {
                       {chip}
                     </Text>
                     {!isAll && active && (
-                      <MaterialIcons name="check" size={14} color={Palette.primary[600]} />
+                      <AppIcon name="check" size={14} color={Palette.primary[600]} />
                     )}
                   </Pressable>
                 );
@@ -208,16 +208,16 @@ export default function JelajahScreen() {
             <Pressable
               onPress={() => setSortMenuOpen(true)}
               style={({ pressed }) => [styles.sortBtn, pressed && styles.pressed]}>
-              <MaterialIcons name="swap-vert" size={16} color={Palette.neutral[500]} />
+              <AppIcon name="swap-vert" size={15} color={Palette.neutral[500]} />
               <Text style={styles.sortLabel}>{sortBy}</Text>
-              <MaterialIcons name="expand-more" size={16} color={Palette.neutral[400]} />
+              <AppIcon name="chevron-down" size={15} color={Palette.neutral[400]} />
             </Pressable>
           </View>
 
           {/* Cards Grid / List */}
           {filteredAndSorted.length === 0 ? (
             <View style={styles.emptyCard}>
-              <MaterialIcons name="location-searching" size={36} color={Palette.neutral[400]} />
+              <AppIcon name="search-off" size={34} color={Palette.neutral[400]} />
               <Text style={styles.emptyTitle}>Belum ada kost sesuai filter</Text>
               <Text style={styles.emptyDesc}>
                 Coba hapus sebagian filter atau gunakan kata kunci lokasi lain.
@@ -246,6 +246,7 @@ export default function JelajahScreen() {
                   <PropertyCard
                     property={prop}
                     isWishlisted={wishlistIds.includes(prop.id)}
+                    showWishlist={user.role !== 'OWNER'}
                     onToggleWishlist={toggleWishlist}
                     onPressDetail={(id) =>
                       router.push({ pathname: '/properties/[id]', params: { id } })
@@ -285,7 +286,7 @@ export default function JelajahScreen() {
                     {option}
                   </Text>
                   {selected && (
-                    <MaterialIcons name="check" size={18} color={Palette.primary[600]} />
+                    <AppIcon name="check" size={18} color={Palette.primary[600]} />
                   )}
                 </Pressable>
               );

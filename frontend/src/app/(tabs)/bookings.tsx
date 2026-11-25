@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
+import { AppIcon } from '@/components/ui/app-icon';
 import { ConfirmDialog, ToastBanner } from '@/components/ui/confirm-dialog';
 import { ResponsiveContainer } from '@/components/ui/responsive-container';
 import { TabHeader } from '@/components/ui/screen-header';
@@ -25,6 +25,7 @@ export default function BookingsScreen() {
   const { user, bookings, updateBookingStatus } = useApp();
 
   const [statusFilter, setStatusFilter] = useState<'ALL' | BookingStatus>('ALL');
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmState, setConfirmState] = useState<{
     booking: BookingItem;
     nextStatus: BookingStatus;
@@ -33,6 +34,11 @@ export default function BookingsScreen() {
     destructive: boolean;
   } | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const openConfirm = (payload: NonNullable<typeof confirmState>) => {
+    setConfirmState(payload);
+    setConfirmOpen(true);
+  };
 
   const filteredBookings = useMemo(() => {
     if (statusFilter === 'ALL') return bookings;
@@ -55,7 +61,7 @@ export default function BookingsScreen() {
         <ResponsiveContainer maxWidth={860}>
           {/* Manual Payment Boundary Notice (PRD §3.3 & Design.md §7) */}
           <View style={styles.noticeBanner}>
-            <MaterialIcons name="info" size={18} color={Palette.primary[600]} />
+            <AppIcon name="info" size={18} color={Palette.primary[600]} />
             <Text style={styles.noticeText}>
               {user.role === 'OWNER'
                 ? 'Menyetujui pengajuan akan mengunci jadwal kamar pada periode terkait. Pembayaran sewa dilakukan langsung di luar aplikasi.'
@@ -85,7 +91,7 @@ export default function BookingsScreen() {
 
           {filteredBookings.length === 0 ? (
             <View style={styles.emptyCard}>
-              <MaterialIcons name="event-note" size={34} color={Palette.neutral[400]} />
+              <AppIcon name="calendar-outline" size={34} color={Palette.neutral[400]} />
               <Text style={styles.emptyTitle}>Belum ada daftar booking</Text>
               <Text style={styles.emptySub}>
                 Jelajahi pilihan kost dan ajukan sewa kamar bulanan dengan mudah.
@@ -152,7 +158,7 @@ export default function BookingsScreen() {
                       (booking.status === 'PENDING' || booking.status === 'APPROVED') && (
                         <Pressable
                           onPress={() =>
-                            setConfirmState({
+                            openConfirm({
                               booking,
                               nextStatus: 'CANCELLED',
                               title: 'Batalkan Pengajuan Sewa?',
@@ -172,7 +178,7 @@ export default function BookingsScreen() {
                       <>
                         <Pressable
                           onPress={() =>
-                            setConfirmState({
+                            openConfirm({
                               booking,
                               nextStatus: 'REJECTED',
                               title: 'Tolak Pengajuan?',
@@ -185,7 +191,7 @@ export default function BookingsScreen() {
                         </Pressable>
                         <Pressable
                           onPress={() =>
-                            setConfirmState({
+                            openConfirm({
                               booking,
                               nextStatus: 'APPROVED',
                               title: 'Setujui Pengajuan Sewa?',
@@ -207,12 +213,12 @@ export default function BookingsScreen() {
       </ScrollView>
 
       <ConfirmDialog
-        visible={!!confirmState}
+        visible={confirmOpen}
         title={confirmState?.title ?? ''}
         message={confirmState?.message ?? ''}
         destructive={confirmState?.destructive}
         confirmLabel={confirmState?.nextStatus === 'APPROVED' ? 'Ya, Setujui' : 'Ya, Lanjutkan'}
-        onCancel={() => setConfirmState(null)}
+        onCancel={() => setConfirmOpen(false)}
         onConfirm={() => {
           if (confirmState) {
             updateBookingStatus(confirmState.booking.id, confirmState.nextStatus);
@@ -224,7 +230,7 @@ export default function BookingsScreen() {
                   : 'Pengajuan booking dibatalkan.'
             );
           }
-          setConfirmState(null);
+          setConfirmOpen(false);
         }}
       />
 
