@@ -1,14 +1,9 @@
 /**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
+ * Kostly Design.md §4 specifies Light mode as the initial product appearance.
+ * Colors.dark remains defined in theme.ts for future extensibility.
  */
-
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'dark' ? 'dark' : 'light';
-
-  return Colors[theme];
+  return Colors.light;
 }

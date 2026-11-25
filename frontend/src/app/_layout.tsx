@@ -1,18 +1,71 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { useEffect } from 'react';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import { Manrope_600SemiBold, Manrope_700Bold } from '@expo-google-fonts/manrope';
+import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { Palette } from '@/constants/theme';
+import { AppProvider } from '@/context/app-context';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+const KostlyLightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: Palette.neutral[50],
+    card: Palette.neutral[0],
+    text: Palette.neutral[900],
+    border: Palette.neutral[200],
+    primary: Palette.primary[600],
+  },
+};
+
+export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    Manrope_600SemiBold,
+    Manrope_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <AppProvider>
+      <ThemeProvider value={KostlyLightTheme}>
+        <StatusBar style="dark" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: Palette.neutral[50] },
+          }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="login" />
+          <Stack.Screen name="register" />
+          <Stack.Screen name="forgot-password" />
+          <Stack.Screen name="properties/[id]" />
+          <Stack.Screen name="owner/properties/index" />
+          <Stack.Screen name="owner/properties/new" />
+        </Stack>
+      </ThemeProvider>
+    </AppProvider>
   );
 }
