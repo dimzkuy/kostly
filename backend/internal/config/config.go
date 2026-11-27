@@ -75,3 +75,8 @@ func getEnv(key, fallback string) string {
 	}
 	return fallback
 }
+
+// SupabaseIssuer returns the expected JWT issuer URL for the configured Supabase project.
+func (c *Config) SupabaseIssuer() string {
+	return strings.TrimRight(c.SupabaseURL, "/") + "/auth/v1"
+}

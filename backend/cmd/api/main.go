@@ -34,10 +34,9 @@ func main() {
 	defer pool.Close()
 	log.Println("database connection established")
 
-	// Create the HTTP router. Gin mode and pool are set here so that
-	// future module constructors receive their dependencies without
-	// requiring further changes to main.go.
-	r := router.New(cfg.AppEnv, pool, cfg.CORSAllowedOrigins)
+	// Create the HTTP router. Gin mode, auth verifier, and pool are wired here
+	// without creating global database connections.
+	r := router.New(cfg, pool)
 
 	// Configure the HTTP server with explicit timeouts to guard against
 	// slow clients. ReadHeaderTimeout prevents slow-loris-style attacks.
@@ -50,18 +49,26 @@ func main() {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	// Start the server in a goroutine so we can listen for shutdown signals.
+	// Start the server in a goroutine so we can listen for shutdown signals
+	// and forward unexpected startup/serve errors back to main.
+	errCh := make(chan error, 1)
 	go func() {
 		log.Printf("server starting on :%s (env=%s)", cfg.AppPort, cfg.AppEnv)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("server error: %v", err)
+			errCh <- err
 		}
 	}()
 
-	// Block until an interrupt signal is received, then shut down gracefully.
+	// Block until an interrupt signal or unexpected server error is received.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-	<-ctx.Done()
+
+	select {
+	case err := <-errCh:
+		log.Printf("server error: %v", err)
+		return
+	case <-ctx.Done():
+	}
 
 	log.Println("shutting down server...")
 
