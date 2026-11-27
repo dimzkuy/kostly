@@ -14,6 +14,7 @@ interface AppContextValue {
   register: (params: { fullName: string; email: string; role: UserRole }) => void;
   logout: () => void;
   switchDemoRole: (role: UserRole) => void;
+  updateProfile: (params: { fullName: string; email: string; phone: string }) => void;
   toggleWhatsappAlerts: () => void;
   toggleWishlist: (propertyId: string) => void;
   createBookingRequest: (params: {
@@ -93,13 +94,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           email: email.trim() || DEFAULT_USER.email,
           role,
         }));
-        setIsAuthenticated(true);
       },
       logout: () => {
         setIsAuthenticated(false);
       },
       switchDemoRole: (role) => {
         setUser((prev) => ({ ...prev, role }));
+      },
+      updateProfile: ({ fullName, email, phone }) => {
+        setUser((prev) => {
+          const cleanName = fullName.trim() || prev.fullName;
+          return {
+            ...prev,
+            fullName: cleanName,
+            initials: getInitials(cleanName),
+            email: email.trim() || prev.email,
+            phone: phone.trim() || prev.phone,
+          };
+        });
       },
       toggleWhatsappAlerts: () => {
         setUser((prev) => ({ ...prev, whatsappAlerts: !prev.whatsappAlerts }));

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import {
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -25,16 +27,52 @@ export default function ProfilSayaScreen() {
     wishlistIds,
     bookings,
     switchDemoRole,
+    updateProfile,
     toggleWhatsappAlerts,
     logout,
   } = useApp();
 
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editName, setEditName] = useState(user.fullName);
+  const [editEmail, setEditEmail] = useState(user.email);
+  const [editPhone, setEditPhone] = useState(user.phone);
+  const [editError, setEditError] = useState<string | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 2600);
+  };
+
+  const openEditModal = () => {
+    setEditName(user.fullName);
+    setEditEmail(user.email);
+    setEditPhone(user.phone);
+    setEditError(null);
+    setEditOpen(true);
+  };
+
+  const handleSaveProfile = () => {
+    if (!editName.trim()) {
+      setEditError('Nama lengkap wajib diisi.');
+      return;
+    }
+    if (!editEmail.trim() || !editEmail.includes('@')) {
+      setEditError('Masukkan alamat email yang valid.');
+      return;
+    }
+    if (editPhone.trim().length < 8) {
+      setEditError('Nomor telepon minimal 8 karakter.');
+      return;
+    }
+    updateProfile({
+      fullName: editName,
+      email: editEmail,
+      phone: editPhone,
+    });
+    setEditOpen(false);
+    showToast('Informasi pribadi berhasil diperbarui.');
   };
 
   const activeBookingsCount = bookings.filter(
@@ -235,7 +273,7 @@ export default function ProfilSayaScreen() {
                 iconBg={Palette.neutral[100]}
                 iconColor={Palette.neutral[700]}
                 title="Edit Informasi Pribadi"
-                onPress={() => showToast('Informasi profil dapat diperbarui via endpoint /me.')}
+                onPress={openEditModal}
               />
               <Divider />
               <MenuRow
@@ -316,6 +354,82 @@ export default function ProfilSayaScreen() {
           router.replace('/login');
         }}
       />
+
+      <Modal
+        transparent
+        visible={editOpen}
+        animationType="fade"
+        onRequestClose={() => setEditOpen(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setEditOpen(false)}>
+          <Pressable style={styles.editModalCard} onPress={() => {}}>
+            <View style={styles.editModalHeader}>
+              <Text style={styles.editModalTitle}>Edit Informasi Pribadi</Text>
+              <Pressable
+                accessibilityLabel="Tutup"
+                onPress={() => setEditOpen(false)}
+                style={styles.modalCloseBtn}>
+                <AppIcon name="close" size={20} color={Palette.neutral[500]} />
+              </Pressable>
+            </View>
+
+            {editError && (
+              <View style={styles.editErrorBox}>
+                <AppIcon name="error-outline" size={17} color={Palette.semantic.danger600} />
+                <Text style={styles.editErrorText}>{editError}</Text>
+              </View>
+            )}
+
+            <View style={styles.editField}>
+              <Text style={styles.editLabel}>Nama Lengkap</Text>
+              <TextInput
+                value={editName}
+                onChangeText={setEditName}
+                placeholder="Nama lengkap Anda"
+                placeholderTextColor={Palette.neutral[400]}
+                style={styles.editInput}
+              />
+            </View>
+
+            <View style={styles.editField}>
+              <Text style={styles.editLabel}>Alamat Email</Text>
+              <TextInput
+                value={editEmail}
+                onChangeText={setEditEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="email@contoh.com"
+                placeholderTextColor={Palette.neutral[400]}
+                style={styles.editInput}
+              />
+            </View>
+
+            <View style={styles.editField}>
+              <Text style={styles.editLabel}>Nomor Telepon / WhatsApp</Text>
+              <TextInput
+                value={editPhone}
+                onChangeText={setEditPhone}
+                keyboardType="phone-pad"
+                placeholder="+62 812-xxxx-xxxx"
+                placeholderTextColor={Palette.neutral[400]}
+                style={styles.editInput}
+              />
+            </View>
+
+            <View style={styles.editActions}>
+              <Pressable
+                onPress={() => setEditOpen(false)}
+                style={({ pressed }) => [styles.editCancelBtn, pressed && styles.pressed]}>
+                <Text style={styles.editCancelText}>Batal</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleSaveProfile}
+                style={({ pressed }) => [styles.editSaveBtn, pressed && styles.pressed]}>
+                <Text style={styles.editSaveText}>Simpan</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <ToastBanner visible={!!toastMsg} message={toastMsg ?? ''} type="info" />
     </View>
@@ -610,5 +724,106 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.78,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  editModalCard: {
+    width: '100%',
+    maxWidth: 440,
+    backgroundColor: Palette.neutral[0],
+    borderRadius: 18,
+    padding: 18,
+    gap: 14,
+    borderWidth: 1,
+    borderColor: Palette.neutral[200],
+  },
+  editModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  editModalTitle: {
+    fontSize: 17,
+    fontFamily: 'Manrope_700Bold',
+    fontWeight: '700',
+    color: Palette.neutral[900],
+  },
+  modalCloseBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 9999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editErrorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: Palette.semantic.danger50,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+  },
+  editErrorText: {
+    flex: 1,
+    fontSize: 12,
+    fontFamily: 'Inter_500Medium',
+    color: Palette.semantic.danger600,
+  },
+  editField: {
+    gap: 6,
+  },
+  editLabel: {
+    fontSize: 13,
+    fontFamily: 'Inter_500Medium',
+    fontWeight: '500',
+    color: Palette.neutral[700],
+  },
+  editInput: {
+    backgroundColor: Palette.neutral[100],
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    height: 46,
+    fontSize: 14,
+    fontFamily: 'Inter_400Regular',
+    color: Palette.neutral[900],
+  },
+  editActions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 4,
+  },
+  editCancelBtn: {
+    flex: 1,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: Palette.neutral[100],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editCancelText: {
+    fontSize: 14,
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: '600',
+    color: Palette.neutral[700],
+  },
+  editSaveBtn: {
+    flex: 1,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: Palette.primary[600],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editSaveText: {
+    fontSize: 14,
+    fontFamily: 'Inter_600SemiBold',
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });

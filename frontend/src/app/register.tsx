@@ -80,9 +80,9 @@ export default function RegisterScreen() {
     setTimeout(() => {
       register({ fullName: fullName.trim(), email: email.trim(), role });
       setSubmitting(false);
-      setToastMsg('Akun berhasil didaftarkan! Mengarahkan ke Kostly...');
+      setToastMsg('Akun berhasil didaftarkan!');
       setTimeout(() => {
-        router.replace(ROUTES.home);
+        router.replace(ROUTES.login);
       }, 500);
     }, 600);
   };
