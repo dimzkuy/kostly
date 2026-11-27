@@ -139,21 +139,8 @@ export default function BerandaScreen() {
                   </Pressable>
                 )}
               </View>
-
-              <Pressable
-                accessibilityLabel="Filter Pencarian"
-                onPress={() => router.push('/explore')}
-                style={({ pressed }) => [styles.filterTrigger, pressed && styles.pressed]}>
-                <AppIcon name="filter" size={20} color={Palette.neutral[700]} />
-                <View style={styles.filterBadge}>
-                  <Text style={styles.filterBadgeText}>
-                    {activeFilterCount > 0 ? activeFilterCount : 3}
-                  </Text>
-                </View>
-              </Pressable>
             </View>
           </View>
-
 
           {/* Section 1: Rekomendasi Kost Terpopuler */}
           <View style={styles.sectionHeader}>

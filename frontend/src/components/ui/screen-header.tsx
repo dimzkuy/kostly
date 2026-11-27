@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -148,9 +149,11 @@ export function StackHeader({
 
         {showBrandLogo ? (
           <View style={styles.brandRow}>
-            <View style={styles.brandBadge}>
-              <AppIcon name="business" size={15} color="#FFFFFF" />
-            </View>
+            <Image
+              source={require('@/assets/images/kostly-icon.png')}
+              style={styles.brandLogo}
+              contentFit="contain"
+            />
             <Text style={styles.brandTitle}>Kostly</Text>
           </View>
         ) : (
@@ -266,13 +269,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  brandBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: Palette.primary[600],
-    alignItems: 'center',
-    justifyContent: 'center',
+  brandLogo: {
+    width: 24,
+    height: 24,
   },
   brandTitle: {
     fontSize: 20,

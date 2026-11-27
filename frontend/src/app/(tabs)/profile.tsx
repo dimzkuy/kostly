@@ -253,7 +253,7 @@ export default function ProfilSayaScreen() {
                   </View>
                   <View style={styles.rowTextWrap}>
                     <Text style={styles.rowTitle}>Preferensi Notifikasi</Text>
-                    <Text style={styles.rowSub}>Pemberitahuan & WhatsApp Alert</Text>
+                    <Text style={styles.rowSub}>Pemberitahuan Notifikasi Aplikasi</Text>
                   </View>
                 </View>
                 <Switch

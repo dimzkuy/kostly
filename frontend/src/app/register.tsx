@@ -334,19 +334,6 @@ export default function RegisterScreen() {
                 </Pressable>
               </View>
             </View>
-
-            {/* Security Guarantee Card */}
-            <View style={styles.securityCard}>
-              <View style={styles.securityIconBox}>
-                <AppIcon name="verified-user" size={20} color="#FFFFFF" />
-              </View>
-              <View style={styles.securityTextWrap}>
-                <Text style={styles.securityTitle}>Privasi & Keamanan Terjamin</Text>
-                <Text style={styles.securityDesc}>
-                  Data Anda dilindungi enkripsi 256-bit & verifikasi identitas resmi untuk kenyamanan transaksi sewa.
-                </Text>
-              </View>
-            </View>
           </ResponsiveContainer>
         </ScrollView>
       </KeyboardAvoidingView>

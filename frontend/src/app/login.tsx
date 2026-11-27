@@ -224,20 +224,6 @@ export default function LoginScreen() {
                 <AppIcon name="chevron-right" size={16} color={Palette.primary[600]} />
               </Pressable>
             </View>
-
-            {/* Trust Card */}
-            <View style={styles.trustCard}>
-              <View style={styles.trustIconBox}>
-                <AppIcon name="verified-user" size={20} color={Palette.primary[600]} />
-              </View>
-              <View style={styles.trustTextWrap}>
-                <Text style={styles.trustTitle}>Privasi & Keamanan Terjamin</Text>
-                <Text style={styles.trustDesc}>
-                  Data Anda dilindungi enkripsi 256-bit standar industri.
-                </Text>
-              </View>
-            </View>
-
             <Text style={styles.legalText}>
               Dengan masuk, Anda menyetujui Ketentuan Layanan & Kebijakan Privasi Kostly.
             </Text>

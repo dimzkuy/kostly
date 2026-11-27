@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { usePathname, useRouter, type Href } from 'expo-router';
 
 import { AppIcon } from '@/components/ui/app-icon';
@@ -58,9 +59,11 @@ export function AppSidebar() {
   return (
     <View style={[styles.sidebar, isTablet ? styles.sidebarTablet : styles.sidebarDesktop]}>
       <View style={styles.brandHeader}>
-        <View style={styles.logoBox}>
-          <AppIcon name="business" size={19} color="#FFFFFF" />
-        </View>
+        <Image
+          source={require('@/assets/images/kostly-icon.png')}
+          style={styles.logoImage}
+          contentFit="contain"
+        />
         <View>
           <Text style={styles.brandName}>Kostly</Text>
           <Text style={styles.brandTag}>Sewa Kost Transparan</Text>
@@ -165,13 +168,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 24,
   },
-  logoBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: Palette.primary[600],
-    alignItems: 'center',
-    justifyContent: 'center',
+  logoImage: {
+    width: 30,
+    height: 30,
   },
   brandName: {
     fontSize: 20,
